@@ -1,0 +1,4486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/8eadf802c0.js" crossorigin="anonymous"></script>
+    <title>Anime Quiz Challenge</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --dark: #292f36;
+            --light: #f7fff7;
+            --accent: #ff9f1c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.1) 0%, transparent 20%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-container {
+            background-color: rgba(41, 47, 54, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+            transform-origin: top center;
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        
+        .question-count {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .score {
+            background-color: var(--accent);
+            color: var(--dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+            font-size: 0.9rem;
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+            min-height: 3.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .option {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            animation: fadeInUp 0.5s ease-out;
+            transform-origin: center;
+            font-size: 1rem;
+        }
+        
+        .option:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option.correct {
+            background-color: rgba(78, 205, 196, 0.3);
+            border-color: var(--secondary);
+            color: var(--secondary);
+            animation: correctAnswer 0.5s ease-out;
+        }
+        
+        .option.incorrect {
+            background-color: rgba(255, 107, 107, 0.3);
+            border-color: var(--primary);
+            color: var(--primary);
+            animation: wrongAnswer 0.5s ease-out;
+        }
+        
+        .next-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.8rem;
+            animation: fadeInUp 0.5s ease-out;
+            font-size: 1rem;
+        }
+        
+        .next-btn:hover {
+            background-color: #ffb347;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .give-up-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            animation: fadeInUp 0.5s ease-out;
+            font-size: 1rem;
+        }
+        
+        .give-up-btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-container {
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+            padding: 1.5rem;
+            background-color: rgba(41, 47, 54, 0.8);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            animation: bounceIn 0.8s ease-out;
+        }
+        
+        .final-score {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+            animation: rubberBand 1s ease-out;
+        }
+        
+        .feedback {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            animation: fadeIn 1s ease-out;
+            line-height: 1.5;
+        }
+        
+        .restart-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            animation: fadeInUp 0.8s ease-out;
+            font-size: 1rem;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+        
+        .restart-btn:hover {
+            background-color: #3dbeb6;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        .character-right {
+            position: absolute;
+            width: 120px;
+            bottom: -40px;
+            right: -60px;
+            opacity: 0.7;
+            z-index: -1;
+            animation: float 6s ease-in-out infinite;
+            display: none;
+        }
+        
+        .character-left {
+            position: absolute;
+            width: 120px;
+            bottom: -40px;
+            left: -60px;
+            opacity: 0.7;
+            z-index: -1;
+            animation: float 6s ease-in-out infinite reverse;
+            display: none;
+        }
+        
+        .difficulty-indicator {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .easy {
+            background-color: rgba(78, 205, 196, 0.2);
+            color: var(--secondary);
+        }
+        
+        .medium {
+            background-color: rgba(255, 159, 28, 0.2);
+            color: var(--accent);
+        }
+        
+        .hard {
+            background-color: rgba(255, 107, 107, 0.2);
+            color: var(--primary);
+        }
+        
+        .expert {
+            background-color: rgba(156, 39, 176, 0.2);
+            color: #9c27b0;
+        }
+        
+        .master {
+            background-color: rgba(233, 30, 99, 0.2);
+            color: #e91e63;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .leaderboard-container {
+            background-color: rgba(41, 47, 54, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .leaderboard-title {
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+            color: var(--accent);
+            text-align: center;
+            animation: fadeInDown 0.5s ease-out;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            animation: fadeIn 0.8s ease-out;
+            font-size: 0.9rem;
+        }
+        
+        .leaderboard-table th {
+            background-color: rgba(255, 159, 28, 0.2);
+            padding: 0.6rem;
+            text-align: left;
+            color: var(--accent);
+            position: sticky;
+            top: 0;
+        }
+        
+        .leaderboard-table td {
+            padding: 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .leaderboard-table tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .leaderboard-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .rank-1 {
+            color: gold;
+            font-weight: bold;
+        }
+        
+        .rank-2 {
+            color: silver;
+            font-weight: bold;
+        }
+        
+        .rank-3 {
+            color: #cd7f32;
+            font-weight: bold;
+        }
+        
+        .show-leaderboard-btn {
+            display: block;
+            margin: 0.6rem auto;
+            padding: 0.7rem 1.1rem;
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            font-size: 0.9rem;
+            width: auto;
+        }
+        
+        .show-leaderboard-btn:hover {
+            background-color: #52f9ff;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-to-home-btn {
+            display: block;
+            margin: 0.6rem auto 0;
+            padding: 0.7rem 1.1rem;
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            font-size: 0.9rem;
+        }
+        
+        .back-to-home-btn:hover {
+            background-color: #52e5ff;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quiz-footer {
+            display: flex;
+            flex-direction: column;
+            margin-top: 1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes rubberBand {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.25, 0.75); }
+            40% { transform: scale(0.75, 1.25); }
+            50% { transform: scale(1.15, 0.85); }
+            65% { transform: scale(0.95, 1.05); }
+            75% { transform: scale(1.05, 0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(78, 205, 196, 0.5); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes wrongAnswer {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes flipIn {
+            0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+            40% { transform: perspective(400px) rotateY(-10deg); }
+            70% { transform: perspective(400px) rotateY(10deg); }
+            100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 600px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .quiz-container {
+                padding: 2rem;
+            }
+            
+            .question {
+                font-size: 1.5rem;
+                min-height: 4rem;
+            }
+            
+            .options {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .option {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+            
+            .next-btn, .give-up-btn {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+            
+            .result-container {
+                padding: 2rem;
+            }
+            
+            .result-title {
+                font-size: 2rem;
+            }
+            
+            .final-score {
+                font-size: 3rem;
+            }
+            
+            .emoji {
+                font-size: 4rem;
+            }
+            
+            .feedback {
+                font-size: 1.2rem;
+            }
+            
+            .character-right, .character-left {
+                display: block;
+                width: 150px;
+                bottom: -50px;
+                right: -80px;
+                left: -80px;
+            }
+            
+            .difficulty-indicator {
+                padding: 0.3rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .leaderboard-container {
+                padding: 2rem;
+            }
+            
+            .leaderboard-title {
+                font-size: 1.8rem;
+            }
+            
+            .leaderboard-table {
+                font-size: 1rem;
+            }
+            
+            .leaderboard-table th, .leaderboard-table td {
+                padding: 0.8rem;
+            }
+            
+            .show-leaderboard-btn, .back-to-home-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .character-right, .character-left {
+                width: 180px;
+                bottom: -60px;
+                right: -100px;
+                left: -100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Anime Quiz Challenge</h1>
+            <p class="subtitle">Test your anime knowledge across all difficulty levels!</p>
+        </header>
+
+        <button class="show-leaderboard-btn"><i class="fa fa-trophy" aria-hidden="true"></i> Leaderboard </button>
+        
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <div class="question-count"></div>
+                <div class="score">Score: 0</div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            
+            <div class="question"></div>
+            <div class="options"></div>
+            <div class="quiz-footer">
+                <button class="next-btn"> Skip Question <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                <button class="give-up-btn"> Give Up <i class="fa fa-flag" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        
+        <div class="result-container">
+            <span class="emoji">🎉</span>
+            <h2 class="result-title">Quiz Completed!</h2>
+            <div class="final-score">0/250</div>
+            <p class="feedback"></p>
+            <button class="restart-btn"> <i class="fa fa-undo" aria-hidden="true"></i> Try Again </button>
+        </div>
+        
+        <div class="leaderboard-container">
+            <h3 class="leaderboard-title">Top 10 Anime Masters</h3>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Level</th>
+                        <th>Rank</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Leaderboard will be populated by JavaScript -->
+                </tbody>
+            </table>
+            <button class="back-to-home-btn"><i class="fa fa-home" aria-hidden="true"></i> Back To Quiz </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const quizContainer = document.querySelector('.quiz-container');
+            const resultContainer = document.querySelector('.result-container');
+            const leaderboardContainer = document.querySelector('.leaderboard-container');
+            const questionElement = document.querySelector('.question');
+            const optionsElement = document.querySelector('.options');
+            const nextButton = document.querySelector('.next-btn');
+            const giveUpButton = document.querySelector('.give-up-btn');
+            const showLeaderboardBtn = document.querySelectorAll('.show-leaderboard-btn');
+            const questionCountElement = document.querySelector('.question-count');
+            const scoreElement = document.querySelector('.score');
+            const progressBar = document.querySelector('.progress-bar');
+            const finalScoreElement = document.querySelector('.final-score');
+            const feedbackElement = document.querySelector('.feedback');
+            const restartButton = document.querySelector('.restart-btn');
+            const backToHomeBtn = document.querySelector('.back-to-home-btn');
+            const emojiElement = document.querySelector('.emoji');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            
+            // Quiz Variables
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let questions = [];
+            let shuffledQuestions = [];
+            let userRank = "Beginner";
+            let playerName = "Player";
+            
+              // Sample leaderboard data
+            let leaderboard = [
+                { name: "AnimeGod", score: 262, level: 267, rank: "Anime Deity" },
+                { name: "NarutoFan", score: 257, level: 260, rank: "Anime Scholar" },
+                { name: "GokuSSJ", score: 233, level: 247, rank: "Anime Scholar" },
+                { name: "LuffyKing", score: 225, level: 257, rank: "Otaku Veteran" },
+                { name: "SaitamaOP", score: 199, level: 205, rank: "Otaku Veteran" },
+                { name: "ErenYeager", score: 160, level: 180, rank: "Otaku Veteran" },
+                { name: "LightYagami", score: 99, level: 111, rank: "Seasonal Watcher" },
+                { name: "LeviAckerman", score: 96, level: 105, rank: "Seasonal Watcher" },
+                { name: "Tanjiro", score: 93, level: 100, rank: "Seasonal Watcher" },
+                { name: "Midoriya", score: 52, level: 60, rank: "Beginner Weeb" }
+            ];
+            
+             // Question Database
+            const questionDatabase = {
+                easy: [
+                    {
+question: "Who is the main character in 'Naruto'?",
+options: ["Sasuke", "Naruto", "Kakashi", "Hinata"],
+answer: "Naruto",
+difficulty: "easy"
+},
+
+{
+question: "In 'Dragon Ball Z', what is the name of Goku's son?",
+options: ["Gohan", "Vegeta", "Trunks", "Piccolo"],
+answer: "Gohan",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the pirate crew in 'One Piece'?",
+options: ["Straw Hat Pirates", "Red Hair Pirates", "Blackbeard Pirates", "Whitebeard Pirates"],
+answer: "Straw Hat Pirates",
+difficulty: "easy"
+},
+
+{
+question: "Who is the protagonist of 'Attack on Titan'?",
+options: ["Levi", "Eren", "Mikasa", "Armin"],
+answer: "Eren",
+difficulty: "easy"
+},
+
+{
+question: "In 'Death Note', what is the name of the detective opposing Light?",
+options: ["L", "Near", "Mello", "Ryuk"],
+answer: "L",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the magical cat in 'Sailor Moon'?",
+options: ["Luna", "Artemis", "Diana", "Phoebe"],
+answer: "Luna",
+difficulty: "easy"
+},
+
+{
+question: "Who is the #1 hero in 'My Hero Academia'?",
+options: ["Endeavor", "All Might", "Eraserhead", "Hawks"],
+answer: "All Might",
+difficulty: "easy"
+},
+
+{
+question: "What is the main character's name in 'Demon Slayer'?",
+options: ["Zenitsu", "Inosuke", "Tanjiro", "Giyu"],
+answer: "Tanjiro",
+difficulty: "easy"
+},
+
+{
+question: "In 'Fullmetal Alchemist', what are the two main brothers' names?",
+options: ["Edward & Alphonse", "Roy & Riza", "Ling & Lan Fan", "Scar & Wrath"],
+answer: "Edward & Alphonse",
+difficulty: "easy"
+},
+
+{
+question: "Who is the Saiyan prince in 'Dragon Ball Z'?",
+options: ["Goku", "Vegeta", "Broly", "Bardock"],
+answer: "Vegeta",
+difficulty: "easy"
+},
+
+{
+question: "What is Ash's first Pokémon?",
+options: ["Pikachu", "Charmander", "Bulbasaur", "Squirtle"],
+answer: "Pikachu",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Cowboy Bebop'?",
+options: ["Jet", "Faye", "Spike", "Ein"],
+answer: "Spike",
+difficulty: "easy"
+},
+
+{
+question: "In 'Bleach', what is Ichigo's weapon called?",
+options: ["Zangetsu", "Benihime", "Hyorinmaru", "Senbonzakura"],
+answer: "Zangetsu",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the ninja village in 'Naruto'?",
+options: ["Konoha", "Sunagakure", "Kirigakure", "Kumogakure"],
+answer: "Konoha",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main villain in 'Death Note'?",
+options: ["L", "Light Yagami", "Ryuk", "Misa Amane"],
+answer: "Light Yagami",
+difficulty: "easy"
+},
+
+{
+question: "In 'Tokyo Ghoul', what is Ken Kaneki's nickname after his transformation?",
+options: ["Eyepatch", "Centipede", "Kakuja", "One-Eyed King"],
+answer: "Eyepatch",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the giant robot in 'Neon Genesis Evangelion'?",
+options: ["EVA-01", "Gundam", "Mazinger Z", "Gurren Lagann"],
+answer: "EVA-01",
+difficulty: "easy"
+},
+
+{
+question: "Who is the captain of the Straw Hat Pirates in 'One Piece'?",
+options: ["Zoro", "Sanji", "Luffy", "Nami"],
+answer: "Luffy",
+difficulty: "easy"
+},
+
+{
+question: "In 'Hunter x Hunter', what is Gon's last name?",
+options: ["Zoldyck", "Freecss", "Paladin", "Morow"],
+answer: "Freecss",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Sword Art Online'?",
+options: ["Kirito", "Asuna", "Leafa", "Sinon"],
+answer: "Kirito",
+difficulty: "easy"
+},
+
+{
+question: "In 'Fairy Tail', what is Natsu's element?",
+options: ["Fire", "Lightning", "Ice", "Wind"],
+answer: "Fire",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Black Clover'?",
+options: ["Yuno", "Asta", "Noelle", "Yami"],
+answer: "Asta",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the alchemy law in 'Fullmetal Alchemist'?",
+options: ["Law of Destruction", "Law of Equivalent Exchange", "Law of Transmutation", "Law of Truth"],
+answer: "Law of Equivalent Exchange",
+difficulty: "easy"
+},
+
+{
+question: "In 'JoJo’s Bizarre Adventure', what is the name of Jonathan Joestar’s rival?",
+options: ["Dio", "Kars", "Kira", "Diavolo"],
+answer: "Dio",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the cursed technique used by Gojo in 'Jujutsu Kaisen'?",
+options: ["Domain Expansion", "Infinity", "Black Flash", "Reverse Cursed Technique"],
+answer: "Infinity",
+difficulty: "easy"
+},
+
+{
+question: "In 'Attack on Titan', what is the name of the female Titan?",
+options: ["Annie", "Mikasa", "Historia", "Ymir"],
+answer: "Annie",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the strongest hero in 'One Punch Man'?",
+options: ["Genos", "Tatsumaki", "Saitama", "Bang"],
+answer: "Saitama",
+difficulty: "easy"
+},
+
+{
+question: "In 'Demon Slayer', what is Nezuko's unique ability?",
+options: ["Blood Demon Art", "Sun Breathing", "Water Breathing", "Thunder Breathing"],
+answer: "Blood Demon Art",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Steins;Gate'?",
+options: ["Okabe", "Kurisu", "Mayuri", "Daru"],
+answer: "Okabe",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the organization Lelouch leads in 'Code Geass'?",
+options: ["Black Knights", "Britannian Army", "Geass Order", "Knights of the Round"],
+answer: "Black Knights",
+difficulty: "easy"
+},
+{
+question: "In 'Pokémon', what type is Pikachu?",
+options: ["Electric", "Fire", "Water", "Normal"],
+answer: "Electric",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Sword Art Online'?",
+options: ["Kirito", "Asuna", "Leafa", "Sinon"],
+answer: "Kirito",
+difficulty: "easy"
+},
+
+{
+question: "In 'My Hero Academia', what is Izuku Midoriya's hero name?",
+options: ["Deku", "All Might", "Great Explosion Murder God", "Eraserhead"],
+answer: "Deku",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the giant robot in 'Neon Genesis Evangelion'?",
+options: ["EVA-01", "Gundam", "Mazinger Z", "Gurren Lagann"],
+answer: "EVA-01",
+difficulty: "easy"
+},
+
+{
+question: "In 'One Piece', what is Luffy's signature attack?",
+options: ["Gum-Gum Pistol", "Dragon Claw", "Red Hawk", "Elephant Gun"],
+answer: "Gum-Gum Pistol",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Black Clover'?",
+options: ["Asta", "Yuno", "Noelle", "Yami"],
+answer: "Asta",
+difficulty: "easy"
+},
+
+{
+question: "In 'Fairy Tail', what is Natsu's last name?",
+options: ["Dragneel", "Heartfilia", "Strauss", "Scarlet"],
+answer: "Dragneel",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the cursed energy in 'Jujutsu Kaisen'?",
+options: ["Chakra", "Reiatsu", "Cursed Energy", "Haki"],
+answer: "Cursed Energy",
+difficulty: "easy"
+},
+
+{
+question: "In 'Attack on Titan', what is the name of the Survey Corps' leader?",
+options: ["Erwin Smith", "Levi Ackerman", "Hange Zoë", "Eren Yeager"],
+answer: "Erwin Smith",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main villain in 'Demon Slayer'?",
+options: ["Muzan Kibutsuji", "Akaza", "Rui", "Doma"],
+answer: "Muzan Kibutsuji",
+difficulty: "easy"
+},
+
+{
+question: "In 'Naruto', what is the name of Sasuke's older brother?",
+options: ["Itachi", "Shisui", "Madara", "Obito"],
+answer: "Itachi",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the strongest hero in 'One Punch Man'?",
+options: ["Saitama", "Genos", "Tatsumaki", "Bang"],
+answer: "Saitama",
+difficulty: "easy"
+},
+
+{
+question: "In 'Death Note', what is the name of the Shinigami who drops the Death Note?",
+options: ["Ryuk", "Rem", "Gelus", "Sidoh"],
+answer: "Ryuk",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Steins;Gate'?",
+options: ["Okabe Rintarou", "Makise Kurisu", "Mayuri Shiina", "Daru"],
+answer: "Okabe Rintarou",
+difficulty: "easy"
+},
+
+{
+question: "In 'Dragon Ball Z', what is the name of Goku's wife?",
+options: ["Bulma", "Chi-Chi", "Videl", "Android 18"],
+answer: "Chi-Chi",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the protagonist in 'Tokyo Ghoul'?",
+options: ["Kaneki Ken", "Hide", "Touka", "Uta"],
+answer: "Kaneki Ken",
+difficulty: "easy"
+},
+
+{
+question: "In 'Hunter x Hunter', what is Gon's primary weapon?",
+options: ["Sword", "Fishing Rod", "Janken", "Nen"],
+answer: "Fishing Rod",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Cowboy Bebop'?",
+options: ["Spike Spiegel", "Jet Black", "Faye Valentine", "Edward"],
+answer: "Spike Spiegel",
+difficulty: "easy"
+},
+
+{
+question: "In 'Bleach', what is Ichigo's sword called?",
+options: ["Zangetsu", "Benihime", "Hyorinmaru", "Senbonzakura"],
+answer: "Zangetsu",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Re:Zero'?",
+options: ["Subaru Natsuki", "Emilia", "Rem", "Ram"],
+answer: "Subaru Natsuki",
+difficulty: "easy"
+},
+
+{
+question: "In 'JoJo’s Bizarre Adventure', what is the name of Jonathan Joestar’s rival?",
+options: ["Dio Brando", "Kars", "Kira", "Diavolo"],
+answer: "Dio Brando",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Code Geass'?",
+options: ["Lelouch Lamperouge", "Suzaku Kururugi", "C.C.", "Kallen Stadtfeld"],
+answer: "Lelouch Lamperouge",
+difficulty: "easy"
+},
+
+{
+question: "In 'Sailor Moon', what is Usagi's alter ego?",
+options: ["Sailor Mercury", "Sailor Mars", "Sailor Moon", "Sailor Venus"],
+answer: "Sailor Moon",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'The Promised Neverland'?",
+options: ["Emma", "Norman", "Ray", "Isabella"],
+answer: "Emma",
+difficulty: "easy"
+},
+
+{
+question: "In 'Dr. Stone', what is Senku's goal?",
+options: ["Rebuild civilization", "Conquer the world", "Find his father", "Destroy all technology"],
+answer: "Rebuild civilization",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Mob Psycho 100'?",
+options: ["Shigeo Kageyama", "Arataka Reigen", "Ritsu Kageyama", "Dimple"],
+answer: "Shigeo Kageyama",
+difficulty: "easy"
+},
+
+{
+question: "In 'Haikyuu!!', what position does Hinata play?",
+options: ["Setter", "Middle Blocker", "Wing Spiker", "Libero"],
+answer: "Middle Blocker",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Your Lie in April'?",
+options: ["Kousei Arima", "Kaori Miyazono", "Tsubaki Sawabe", "Watari Ryouta"],
+answer: "Kousei Arima",
+difficulty: "easy"
+},
+
+{
+question: "In 'Food Wars!', what is Soma's last name?",
+options: ["Yukihira", "Nakiri", "Aldini", "Isshiki"],
+answer: "Yukihira",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the protagonist in 'Vinland Saga'?",
+options: ["Thorfinn", "Askeladd", "Canute", "Thorkell"],
+answer: "Thorfinn",
+difficulty: "easy"
+},
+
+{
+question: "In 'Demon Slayer', what is Tanjiro's sword color?",
+options: ["Black", "Red", "Blue", "Green"],
+answer: "Black",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'No Game No Life'?",
+options: ["Sora", "Shiro", "Stephanie", "Jibril"],
+answer: "Sora",
+difficulty: "easy"
+},
+
+{
+question: "In 'Konosuba', what is Kazuma's party called?",
+options: ["Axis Order", "Crimson Demons", "Kazuma’s Party", "Eris Cult"],
+answer: "Kazuma’s Party",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Toradora!'?",
+options: ["Ryuuji Takasu", "Taiga Aisaka", "Minori Kushieda", "Yusaku Kitamura"],
+answer: "Ryuuji Takasu",
+difficulty: "easy"
+},
+
+{
+question: "In 'Attack on Titan', what is the name of Mikasa's adoptive brother?",
+options: ["Eren Yeager", "Armin Arlert", "Levi Ackerman", "Jean Kirstein"],
+answer: "Eren Yeager",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Noragami'?",
+options: ["Yato", "Yukine", "Hiyori", "Bishamon"],
+answer: "Yato",
+difficulty: "easy"
+},
+
+{
+question: "In 'Assassination Classroom', what is the teacher's name?",
+options: ["Koro-sensei", "Itona", "Nagisa", "Karma"],
+answer: "Koro-sensei",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Blue Exorcist'?",
+options: ["Rin Okumura", "Yukio Okumura", "Shiemi Moriyama", "Mephisto Pheles"],
+answer: "Rin Okumura",
+difficulty: "easy"
+},
+
+{
+question: "In 'The Rising of the Shield Hero', what is Naofumi's weapon?",
+options: ["Sword", "Spear", "Bow", "Shield"],
+answer: "Shield",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'Soul Eater'?",
+options: ["Maka Albarn", "Soul Eater Evans", "Black☆Star", "Death the Kid"],
+answer: "Maka Albarn",
+difficulty: "easy"
+},
+
+{
+question: "In 'Dorohedoro', what is Caiman's goal?",
+options: ["Find his true identity", "Become a sorcerer", "Destroy all magic users", "Open a restaurant"],
+answer: "Find his true identity",
+difficulty: "easy"
+},
+{
+question: "In 'Spy x Family', what is Anya's psychic ability?",
+options: ["Telepathy", "Pyrokinesis", "Telekinesis", "Precognition"],
+answer: "Telepathy",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the pink-haired protagonist in 'Chainsaw Man'?",
+options: ["Denji", "Aki", "Power", "Makima"],
+answer: "Denji",
+difficulty: "easy"
+},
+
+{
+question: "In 'Jujutsu Kaisen', what is Yuji Itadori's cursed technique called?",
+options: ["Divergent Fist", "Black Flash", "Infinity", "Domain Expansion"],
+answer: "Divergent Fist",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the academy in 'My Hero Academia'?",
+options: ["UA High", "Shiketsu High", "Ketsubutsu Academy", "Isamu High"],
+answer: "UA High",
+difficulty: "easy"
+},
+
+{
+question: "In 'Demon Slayer', what breathing style does Zenitsu use?",
+options: ["Thunder Breathing", "Water Breathing", "Flame Breathing", "Beast Breathing"],
+answer: "Thunder Breathing",
+difficulty: "easy"
+},
+
+{
+question: "Who is the main character in 'The Devil is a Part-Timer!'?",
+options: ["Sadao Maou", "Shirou Ashiya", "Emi Yusa", "Chiho Sasaki"],
+answer: "Sadao Maou",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main spaceship in 'Trigun'?",
+options: ["Ship Three", "Sandsteamer", "Astral", "No Ship (they travel by foot)"],
+answer: "No Ship (they travel by foot)",
+difficulty: "easy"
+},
+
+{
+question: "In 'Cells at Work!', what type of cell is the main character?",
+options: ["Red Blood Cell", "White Blood Cell", "Platelet", "Neutrophil"],
+answer: "Red Blood Cell",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the virtual world in '.hack//SIGN'?",
+options: ["The World", "Alfheim", "Sword Art Online", "Underworld"],
+answer: "The World",
+difficulty: "easy"
+},
+
+{
+question: "In 'Kaguya-sama: Love is War', what position does Kaguya hold in student council?",
+options: ["President", "Vice President", "Secretary", "Treasurer"],
+answer: "Vice President",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Erased'?",
+options: ["Satoru Fujinuma", "Kayo Hinazuki", "Airi Katagiri", "Kenya Kobayashi"],
+answer: "Satoru Fujinuma",
+difficulty: "easy"
+},
+
+{
+question: "In 'A Silent Voice', what is Shoya's disability?",
+options: ["Deafness", "Blindness", "Muteness", "He's not disabled"],
+answer: "He's not disabled",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Violet Evergarden'?",
+options: ["Violet Evergarden", "Gilbert Bougainvillea", "Claudia Hodgins", "Dietfried Bougainvillea"],
+answer: "Violet Evergarden",
+difficulty: "easy"
+},
+
+{
+question: "In 'Made in Abyss', what is the main setting called?",
+options: ["The Abyss", "The Chasm", "The Void", "The Pit"],
+answer: "The Abyss",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'The Disastrous Life of Saiki K.'?",
+options: ["Kusuo Saiki", "Shun Kaidou", "Riki Nendou", "Kokomi Teruhashi"],
+answer: "Kusuo Saiki",
+difficulty: "easy"
+},
+
+{
+question: "In 'Beastars', what animal is Legoshi?",
+options: ["Wolf", "Rabbit", "Deer", "Tiger"],
+answer: "Wolf",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Mushoku Tensei'?",
+options: ["Rudeus Greyrat", "Eris Boreas Greyrat", "Roxy Migurdia", "Sylphiette"],
+answer: "Rudeus Greyrat",
+difficulty: "easy"
+},
+
+{
+question: "In 'The Quintessential Quintuplets', how many sisters are there?",
+options: ["3", "4", "5", "6"],
+answer: "5",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Horimiya'?",
+options: ["Hori", "Miyamura", "Ishikawa", "Yoshikawa"],
+answer: "Hori",
+difficulty: "easy"
+},
+
+{
+question: "In 'Wotakoi: Love is Hard for Otaku', what is Narumi's hobby?",
+options: ["Gaming", "Cosplay", "Fujoshi culture", "All of the above"],
+answer: "Fujoshi culture",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Komi Can't Communicate'?",
+options: ["Komi Shouko", "Tadano Hitohito", "Najimi Osana", "Yamai Ren"],
+answer: "Komi Shouko",
+difficulty: "easy"
+},
+
+{
+question: "In 'To Your Eternity', what is the main character's original form?",
+options: ["Orb", "Wolf", "Boy", "Tree"],
+answer: "Orb",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Wonder Egg Priority'?",
+options: ["Ai Ohto", "Neiru Aonuma", "Rika Kawai", "Momoe Sawaki"],
+answer: "Ai Ohto",
+difficulty: "easy"
+},
+
+{
+question: "In 'Given', what instrument does Mafuyu play?",
+options: ["Guitar", "Bass", "Drums", "Vocals"],
+answer: "Vocals",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Sk8 the Infinity'?",
+options: ["Reki", "Langa", "Shadow", "Joe"],
+answer: "Reki",
+difficulty: "easy"
+},
+
+{
+question: "In 'Odd Taxi', what animal is the main character?",
+options: ["Walrus", "Hedgehog", "Alpaca", "Badger"],
+answer: "Walrus",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Link Click'?",
+options: ["Cheng Xiaoshi", "Lu Guang", "Qiao Ling", "Xu Shanshan"],
+answer: "Cheng Xiaoshi",
+difficulty: "easy"
+},
+
+{
+question: "In 'Heaven Official's Blessing', what is Xie Lian's title?",
+options: ["Crimson Rain Sought Flower", "Heavenly Official", "Black Water Sinking Ships", "Earth Master"],
+answer: "Heavenly Official",
+difficulty: "easy"
+},
+
+{
+question: "What is the name of the main character in 'Bungo Stray Dogs'?",
+options: ["Atsushi Nakajima", "Osamu Dazai", "Ryunosuke Akutagawa", "Doppo Kunikida"],
+answer: "Atsushi Nakajima",
+difficulty: "easy"
+},
+                   
+                ],
+                medium: [
+  {
+    "question": "In 'Naruto', what is the name of the technique Sasuke uses that resembles Chidori but is black?",
+    "options": ["Black Lightning", "Chidori Sharp Spear", "Kirin", "Amaterasu"],
+    "answer": "Chidori Sharp Spear",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Attack on Titan', what was the name of Erwin Smith's father?",
+    "options": ["Hannes", "Keith Shadis", "Mr. Smith", "Never named"],
+    "answer": "Never named",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'One Piece', what is the name of the island where the Straw Hats first meet Brook?",
+    "options": ["Thriller Bark", "Sabaody Archipelago", "Florian Triangle", "Water 7"],
+    "answer": "Thriller Bark",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Demon Slayer', which Hashira has a pet sparrow?",
+    "options": ["Shinobu Kocho", "Giyu Tomioka", "Muichiro Tokito", "Mitsuri Kanroji"],
+    "answer": "Muichiro Tokito",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'My Hero Academia', what is All Might's real name?",
+    "options": ["Toshinori Yagi", "Sora Nakamura", "Hisashi Midoriya", "Enji Todoroki"],
+    "answer": "Toshinori Yagi",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Death Note', what is the name of the detective who takes over after L's death?",
+    "options": ["Near", "Mello", "Matt", "Ryuk"],
+    "answer": "Near",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Fullmetal Alchemist', what is the name of the homunculus based on envy?",
+    "options": ["Lust", "Gluttony", "Envy", "Greed"],
+    "answer": "Envy",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Hunter x Hunter', what is Hisoka's blood type?",
+    "options": ["A", "B", "AB", "O"],
+    "answer": "B",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Jujutsu Kaisen', what is the name of Gojo's signature technique?",
+    "options": ["Hollow Purple", "Infinity", "Domain Expansion", "Black Flash"],
+    "answer": "Infinity",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Tokyo Ghoul', what is the name of Kaneki's kakuja form?",
+    "options": ["Centipede", "Dragon", "Owl", "Rize"],
+    "answer": "Centipede",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Steins;Gate', what is the name of the time machine?",
+    "options": ["Time Leap Machine", "Phone Microwave", "Kerr Black Hole", "Divergence Meter"],
+    "answer": "Phone Microwave",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Code Geass', what is the name of Lelouch's Geass?",
+    "options": ["Absolute Obedience", "Power of Kings", "Truth Inducement", "Mind Reading"],
+    "answer": "Absolute Obedience",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Re:Zero', how many times did Subaru die in Arc 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "3",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Promised Neverland', what is the name of the orphanage?",
+    "options": ["Grace Field House", "Lambda 7214", "Goldy Pond", "Grand Valley"],
+    "answer": "Grace Field House",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Dr. Stone', what is the name of Senku's father?",
+    "options": ["Byakuya Ishigami", "Hyoga", "Tsukasa Shishio", "Gen Asagiri"],
+    "answer": "Byakuya Ishigami",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Chainsaw Man', what is Power's real name?",
+    "options": ["Himeno", "Makima", "No name given", "Pochita"],
+    "answer": "No name given",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Spy x Family', what is Loid's code name?",
+    "options": ["Twilight", "Nightfall", "Thorn Princess", "Handler"],
+    "answer": "Twilight",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Oshi no Ko', what is Ai's eye color?",
+    "options": ["Blue", "Pink", "Heterochromatic", "Purple"],
+    "answer": "Heterochromatic",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Zom 100', what is Akira's job at the beginning?",
+    "options": ["Office Worker", "Zombie Hunter", "Doctor", "Unemployed"],
+    "answer": "Office Worker",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Vinland Saga', what weapon does Thorfinn prefer?",
+    "options": ["Axe", "Sword", "Daggers", "Spear"],
+    "answer": "Daggers",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Mob Psycho 100', what is Mob's full name?",
+    "options": ["Shigeo Kageyama", "Ritsu Kageyama", "Arataka Reigen", "Teruki Hanazawa"],
+    "answer": "Shigeo Kageyama",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Haikyuu!!', what position does Kageyama play?",
+    "options": ["Wing Spiker", "Middle Blocker", "Setter", "Libero"],
+    "answer": "Setter",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Your Lie in April', what instrument does Kaori play?",
+    "options": ["Piano", "Violin", "Cello", "Flute"],
+    "answer": "Violin",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Food Wars!', what is Erina's special ability called?",
+    "options": ["God Tongue", "Absolute Pitch", "Perfect Memory", "Super Smell"],
+    "answer": "God Tongue",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Made in Abyss', what is Riko's primary tool for exploration?",
+    "options": ["Pickaxe", "Whistle", "Robot hand", "Star Compass"],
+    "answer": "Whistle",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Disastrous Life of Saiki K.', what color are Saiki's glasses?",
+    "options": ["Green", "Pink", "Black", "Clear"],
+    "answer": "Green",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Beastars', what is Legoshi's job at the school?",
+    "options": ["Drama Club", "Gardener", "Cleaner", "Library Staff"],
+    "answer": "Drama Club",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Mushoku Tensei', what is Rudeus' first elemental affinity?",
+    "options": ["Water", "Fire", "Wind", "Earth"],
+    "answer": "Water",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Quintessential Quintuplets', who is the first sister Futaro tutors?",
+    "options": ["Ichika", "Nino", "Miku", "Yotsuba"],
+    "answer": "Itsuki",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Horimiya', what club does Miyamura join?",
+    "options": ["Art Club", "Literature Club", "No club", "Basketball Club"],
+    "answer": "No club",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Wotakoi', what game does Narumi play with Hanako?",
+    "options": ["MMORPG", "Fighting Game", "Visual Novel", "Card Game"],
+    "answer": "MMORPG",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Komi Can't Communicate', what is Tadano's special skill?",
+    "options": ["Reading moods", "Speed reading", "Perfect memory", "Drawing"],
+    "answer": "Reading moods",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'To Your Eternity', what is Fushi's first form?",
+    "options": ["Wolf", "Boy", "Rock", "Orb"],
+    "answer": "Orb",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Wonder Egg Priority', what color is Ai's hair?",
+    "options": ["Pink", "Blue", "Green", "Purple"],
+    "answer": "Pink",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Given', what instrument does Mafuyu's boyfriend play?",
+    "options": ["Guitar", "Bass", "Drums", "Piano"],
+    "answer": "Guitar",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Sk8 the Infinity', what is Langa's skateboarding style?",
+    "options": ["Street", "Park", "Vert", "Snowboard-inspired"],
+    "answer": "Snowboard-inspired",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Odd Taxi', what animal is Dobu?",
+    "options": ["Walrus", "Baboon", "Lion", "Hyena"],
+    "answer": "Baboon",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Link Click', what is Cheng Xiaoshi's power?",
+    "options": ["Time travel", "Body swapping", "Photo jumping", "Future sight"],
+    "answer": "Photo jumping",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Heaven Official's Blessing', what is Xie Lian's cursed item?",
+    "options": ["Rouye", "Fangxin", "E'ming", "Hua Cheng's eye"],
+    "answer": "Fangxin",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Bungo Stray Dogs', what is Dazai's former mafia partner's name?",
+    "options": ["Chuuya", "Mori", "Oda", "Ango"],
+    "answer": "Chuuya",
+    "difficulty": "medium"
+  },
+    {
+    "question": "In 'Black Clover', what is Asta's grimoire's unique feature?",
+    "options": ["Five-leaf clover", "No magic", "Anti-magic", "Changes color"],
+    "answer": "Anti-magic",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Fire Force', what is Shinra's nickname?",
+    "options": ["Devil's Footprints", "Hero of the Ashen Flames", "Demon", "Ashen Reaper"],
+    "answer": "Devil's Footprints",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Rising of the Shield Hero', what is Raphtalia's race?",
+    "options": ["Human", "Demihuman", "Beastman", "Spirit"],
+    "answer": "Demihuman",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Sword Art Online', what was Kirito's nickname in Gun Gale Online?",
+    "options": ["Black Swordsman", "Beater", "Kirito", "Death Gun"],
+    "answer": "Black Swordsman",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'No Game No Life', what color are Sora and Shiro's hair?",
+    "options": ["Black/White", "Brown/Blonde", "Red/Blue", "Purple/Pink"],
+    "answer": "Black/White",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Konosuba', what is Aqua's title?",
+    "options": ["Goddess of Water", "Arch-priest", "Crusader", "Goddess of Party Tricks"],
+    "answer": "Goddess of Water",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Re:Zero', what is Beatrice's relation to the Forbidden Library?",
+    "options": ["Librarian", "Student", "Guardian", "Creator"],
+    "answer": "Guardian",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Overlord', how many floors does Nazarick have?",
+    "options": ["6", "8", "10", "12"],
+    "answer": "10",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'That Time I Got Reincarnated as a Slime', what is Rimuru's first human form based on?",
+    "options": ["Shizu", "Veldora", "No one", "A random traveler"],
+    "answer": "Shizu",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Devil is a Part-Timer!', what is Maou's job at MgRonald's?",
+    "options": ["Manager", "Cashier", "Fry cook", "Janitor"],
+    "answer": "Fry cook",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Log Horizon', what is Shiroe's class?",
+    "options": ["Enchanter", "Assassin", "Samurai", "Sorcerer"],
+    "answer": "Enchanter",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Noragami', what is Yukine's weapon form?",
+    "options": ["Sword", "Spear", "Shield", "Bow"],
+    "answer": "Sword",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Blue Exorcist', what is Rin's sword called?",
+    "options": ["Kuro", "Koma", "Kurikara", "Kabane"],
+    "answer": "Kurikara",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Assassination Classroom', what is Koro-sensei's weakness?",
+    "options": ["Anti-sensei weapons", "Water", "Cold", "Nothing"],
+    "answer": "Anti-sensei weapons",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Soul Eater', what is Maka's weapon partner?",
+    "options": ["Soul Eater", "Black Star", "Death the Kid", "Crona"],
+    "answer": "Soul Eater",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Dorohedoro', what does Caiman eat to transform?",
+    "options": ["Mushrooms", "Magic user's head", "Special pill", "Nothing"],
+    "answer": "Magic user's head",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Psycho-Pass', what is Akane's initial Enforcer partner?",
+    "options": ["Kogami", "Ginoza", "Masaoka", "Kagari"],
+    "answer": "Kogami",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Parasyte', where does Migi usually reside?",
+    "options": ["Right hand", "Left hand", "Head", "Leg"],
+    "answer": "Right hand",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Erased', what is Satoru's ability called?",
+    "options": ["Revival", "Time Leap", "Reset", "Recall"],
+    "answer": "Revival",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'A Silent Voice', what instrument does Shoko play?",
+    "options": ["Piano", "Violin", "Drums", "Doesn't play"],
+    "answer": "Piano",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Violet Evergarden', what is Violet's job?",
+    "options": ["Soldier", "Doll", "Writer", "Teacher"],
+    "answer": "Doll",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Great Pretender', what is Laurent's signature con?",
+    "options": ["The Sting", "The Long Game", "The Big Score", "The French Drop"],
+    "answer": "The French Drop",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'ID:Invaded', what is the name of the detective's AI assistant?",
+    "options": ["Momoki", "Hondomachi", "Kiki", "Sakaido"],
+    "answer": "Kiki",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Terror in Resonance', what is the name of the terrorist duo?",
+    "options": ["Sphinx", "Nine and Twelve", "The Twins", "L"],
+    "answer": "Nine and Twelve",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Banana Fish', what is the name of the drug?",
+    "options": ["Banana Fish", "Dino", "Papa Doc", "Ash"],
+    "answer": "Banana Fish",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In '91 Days', what is Avilio's real name?",
+    "options": ["Angelo", "Nero", "Corteo", "Fango"],
+    "answer": "Angelo",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Baccano!', what makes the characters immortal?",
+    "options": ["Alchemy", "Magic", "Vampirism", "Science"],
+    "answer": "Alchemy",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Durarara!!', what is Celty's occupation?",
+    "options": ["Courier", "Bartender", "Doctor", "Gang leader"],
+    "answer": "Courier",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Hellsing Ultimate', what is Alucard's restriction level?",
+    "options": ["Level 0", "Level 1", "Level 3", "No restriction"],
+    "answer": "Level 0",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Monster', what is Johan's signature item?",
+    "options": ["Book", "Hat", "Gun", "Picture book"],
+    "answer": "Picture book",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Moriarty the Patriot', what is William's profession?",
+    "options": ["Professor", "Consultant", "Detective", "Noble"],
+    "answer": "Professor",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Case Study of Vanitas', what color is Vanitas' cape?",
+    "options": ["Red", "Blue", "Black", "White"],
+    "answer": "Blue",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Toilet-bound Hanako-kun', what is Hanako's tool?",
+    "options": ["Knife", "Hammer", "Spoon", "Mop"],
+    "answer": "Knife",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Jujutsu Kaisen', what is Yuta's cursed technique?",
+    "options": ["Copy", "Rika", "Domain Amplification", "Cursed Speech"],
+    "answer": "Copy",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Chainsaw Man', what is Denji's contract with Pochita?",
+    "options": ["Show him dreams", "Kill the Gun Devil", "Become human", "Find a girlfriend"],
+    "answer": "Show him dreams",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Spy x Family', what is Yor's codename?",
+    "options": ["Thorn Princess", "Twilight", "Nightfall", "Starlight"],
+    "answer": "Thorn Princess",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Oshi no Ko', what is Aqua's eye color?",
+    "options": ["Blue", "Black", "Red", "Heterochromatic"],
+    "answer": "Blue",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Heavenly Delusion', what is Maru looking for?",
+    "options": ["Heaven", "His sister", "The director", "A doctor"],
+    "answer": "His sister",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Zom 100', what color is Akira's zombie apocalypse list?",
+    "options": ["Red", "Blue", "Yellow", "Rainbow"],
+    "answer": "Rainbow",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Hell's Paradise', what is Gabimaru's title?",
+    "options": ["The Hollow", "The Unkillable", "The Empty", "The Void"],
+    "answer": "The Hollow",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Undead Unluck', what is Andy's ability?",
+    "options": ["Undead", "Unluck", "Unstoppable", "Unkillable"],
+    "answer": "Undead",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Mashle', what can't Mash do?",
+    "options": ["Use magic", "Exercise", "Eat cream puffs", "Sleep"],
+    "answer": "Use magic",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Apothecary Diaries', what is Maomao's special skill?",
+    "options": ["Poison detection", "Medicine making", "Observation", "All of the above"],
+    "answer": "All of the above",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Frieren: Beyond Journey's End', how long was Frieren's original journey?",
+    "options": ["10 years", "50 years", "100 years", "1000 years"],
+    "answer": "10 years",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Dangers in My Heart', what does Ichikawa collect?",
+    "options": ["Knives", "Books", "Horror manga", "Stones"],
+    "answer": "Horror manga",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Insomniacs After School', what do the protagonists bond over?",
+    "options": ["Photography", "Astronomy", "Music", "Literature"],
+    "answer": "Astronomy",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Skip and Loafer', what is Mitsumi's dream?",
+    "options": ["Become Prime Minister", "Be a doctor", "Go to Tokyo", "Marry rich"],
+    "answer": "Become Prime Minister",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'My Love Story with Yamada-kun at Lv999', what game do they play?",
+    "options": ["FFXIV", "Monster Hunter", "Forest of Savior", "Dragon Quest"],
+    "answer": "Forest of Savior",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Angel Next Door Spoils Me Rotten', what is Amane's special dish?",
+    "options": ["Curry", "Omelet rice", "Miso soup", "Hamburger steak"],
+    "answer": "Omelet rice",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'Kubo Won't Let Me Be Invisible', what does Kubo always carry?",
+    "options": ["Notebook", "Camera", "Umbrella", "Sketchbook"],
+    "answer": "Notebook",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Girl I Like Forgot Her Glasses', what is Komura's hobby?",
+    "options": ["Reading", "Drawing", "Birdwatching", "Photography"],
+    "answer": "Birdwatching",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'A Galaxy Next Door', what is Ichiro's secret?",
+    "options": ["Alien", "Prince", "Artist", "Time traveler"],
+    "answer": "Prince",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'My Happy Marriage', what is Miyo's special ability?",
+    "options": ["Dream walking", "Spirit seeing", "No ability", "Super strength"],
+    "answer": "Dream walking",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In 'The Ice Guy and His Cool Female Colleague', what is Himuro's power?",
+    "options": ["Ice creation", "Snow prediction", "Cold resistance", "Weather control"],
+    "answer": "Ice creation",
+    "difficulty": "medium"
+  },
+  {
+    question: "In 'One Piece', what is the name of Zoro's sword style?",
+    options: ["Dual Blade", "Santoryu", "Katana Dojo", "Ryumeken"],
+    answer: "Santoryu",
+    difficulty: "medium"
+},
+{
+    question: "What is the power system called in 'Hunter x Hunter'?",
+    options: ["Chakra", "Nen", "Haki", "Reiatsu"],
+    answer: "Nen",
+    difficulty: "medium"
+},
+{
+    question: "In 'Tokyo Ghoul', what is the name of the organization fighting against ghouls?",
+    options: ["V", "Aogiri Tree", "CCG", "Anteiku"],
+    answer: "CCG",
+    difficulty: "medium"
+},
+{
+    question: "What is the name of the alien race that invades Earth in 'Gintama'?",
+    options: ["Saiyans", "Namekians", "Amanto", "Arrancar"],
+    answer: "Amanto",
+    difficulty: "medium"
+},
+{
+    question: "In 'My Hero Academia', what number hero is Endeavor ranked after All Might retires?",
+    options: ["#2", "#3", "#1", "#4"],
+    answer: "#1",
+    difficulty: "medium"
+},
+{
+    question: "What is Kurapika's special Nen ability in 'Hunter x Hunter'?",
+    options: ["Chain Jail", "Zetsu Blade", "Shadow Clones", "Memory Bomb"],
+    answer: "Chain Jail",
+    difficulty: "medium"
+},     
+                ],
+                hard: [
+  {
+    "question": "In 'Legend of the Galactic Heroes', what is the name of Reinhard's flagship during the Battle of Amritsar?",
+    "options": ["Brunhild", "Barbarossa", "Beowulf", "Tristan"],
+    "answer": "Brunhild",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Monster', what is the exact phrase written on Johan's picture book that traumatized Anna?",
+    "options": ["The Nameless Monster", "Die Puppe", "The Monster Without a Name", "Es war einmal"],
+    "answer": "The Nameless Monster",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Ghost in the Shell: Stand Alone Complex', what is the Laughing Man's actual hack into the optical nanomachines called?",
+    "options": ["Phantom Hack", "Sunfield Incident", "Backdoor Program", "SMC Protocol"],
+    "answer": "Sunfield Incident",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Berserk', what is the exact number of sacrifices required for a God Hand member to manifest during an Eclipse?",
+    "options": ["5", "7", "10", "No set number"],
+    "answer": "No set number",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Kaiji', what is the exact percentage chance of drawing the correct number in the Restricted Rock-Paper-Scissors game?",
+    "options": ["12.5%", "25%", "33.3%", "50%"],
+    "answer": "12.5%",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Tatami Galaxy', how many possible endings does the series technically have?",
+    "options": ["4", "6", "8", "Infinite"],
+    "answer": "Infinite",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Serial Experiments Lain', what is the exact model number of Lain's Navi computer?",
+    "options": ["Nav-500", "Psyche-7", "Xerox-9", "No model shown"],
+    "answer": "Nav-500",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Texhnolyze', what is the exact chemical composition of the substance called 'Raffia'?",
+    "options": ["C₈H₁₀N₄O₂", "Never specified", "CH₃(CH₂)₁₆COOH", "C₁₂H₂₂O₁₁"],
+    "answer": "Never specified",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Ergo Proxy', what is the exact number of AutoReivs Vincent awakens in the final episode?",
+    "options": ["30,000", "100,000", "1 million", "Never specified"],
+    "answer": "30,000",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Mushishi', what is the exact name of the Mushi that creates false memories in Episode 5?",
+    "options": ["Kagebi", "Kouki", "Mimimushi", "Yobukodokuro"],
+    "answer": "Kouki",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Paranoia Agent', what is the exact time shown on the clock when Lil' Slugger first appears in Episode 1?",
+    "options": ["11:11", "12:34", "3:33", "9:21"],
+    "answer": "3:33",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Perfect Blue', what is the exact number of times Mima changes costumes during her concert performance?",
+    "options": ["7", "9", "11", "13"],
+    "answer": "11",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Haibane Renmei', what is the exact weight of the cocoon that Rakka emerges from?",
+    "options": ["12.4 kg", "15.0 kg", "17.3 kg", "Never specified"],
+    "answer": "12.4 kg",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Boogiepop Phantom', what is the exact date when the Spiral Tree incident occurs?",
+    "options": ["May 6, 1999", "June 9, 1999", "September 9, 1999", "November 11, 1999"],
+    "answer": "November 11, 1999",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Now and Then, Here and There', what is the exact number of children in Nabuca's squad?",
+    "options": ["5", "7", "9", "12"],
+    "answer": "7",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Kino's Journey (2003)', what is the exact caliber of Kino's revolver?",
+    "options": [".22", ".38", ".45", ".357"],
+    "answer": ".357",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Big O', what is the exact model number of Dorothy's android series?",
+    "options": ["R. Dorothy-1", "RDR-113", "R. Dorothy Wainwright", "DRN-000"],
+    "answer": "RDR-113",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Wolf's Rain', what is the exact number of wolves in the main group?",
+    "options": ["3", "4", "5", "Changes throughout"],
+    "answer": "4",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Gankutsuou', what is the exact number of years the Count spent in prison?",
+    "options": ["10", "14", "20", "24"],
+    "answer": "14",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Jin-Roh', what is the exact model of the machine gun used by the Kerberos unit?",
+    "options": ["MG42", "STG44", "FG42", "MP40"],
+    "answer": "MG42",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Memories', what is the exact name of the ship in 'Magnetic Rose'?",
+    "options": ["Corona", "Esther", "Saraband", "Eurydice"],
+    "answer": "Eurydice",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Angel's Egg', what is the exact number of crosses seen in the flooded city?",
+    "options": ["3", "7", "12", "Uncountable"],
+    "answer": "12",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Kaiba', what is the exact number of memory chips Warp carries in his body?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "5",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Mind Game', what is the exact duration of the famous tunnel running sequence?",
+    "options": ["2 minutes 17 seconds", "3 minutes 33 seconds", "4 minutes 44 seconds", "5 minutes 55 seconds"],
+    "answer": "4 minutes 44 seconds",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Cat Soup', what percentage of the sister's soul is missing?",
+    "options": ["25%", "33%", "50%", "75%"],
+    "answer": "50%",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Sky Crawlers', what is the exact airspeed of the Sylph in km/h?",
+    "options": ["580 km/h", "620 km/h", "670 km/h", "720 km/h"],
+    "answer": "670 km/h",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Royal Space Force', what is the exact name of the rocket that carries Sheppard?",
+    "options": ["Von Braun", "The Right Stuff", "The Phoenix", "Starwind"],
+    "answer": "Von Braun",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Redline', what is the exact engine displacement of JP's car?",
+    "options": ["5000cc", "7500cc", "9000cc", "11000cc"],
+    "answer": "7500cc",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tekkonkinkreet', what is the exact number of yakuza Black defeats in the climax?",
+    "options": ["11", "24", "33", "47"],
+    "answer": "33",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Paprika', what is the exact model of the DC Mini prototype?",
+    "options": ["DC Mini-1", "DC Mini-Alpha", "DC Mini-X", "No model number"],
+    "answer": "DC Mini-1",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Metropolis', what is the exact frequency of the Ziggurat's energy pulse?",
+    "options": ["528 Hz", "432 Hz", "639 Hz", "Never specified"],
+    "answer": "432 Hz",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Akira', what is the exact number on Kaneda's motorcycle license plate?",
+    "options": ["A-12", "B-25", "C-37", "D-49"],
+    "answer": "A-12",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Perfect Blue', what is the exact page number Mima reads from her script during her breakdown?",
+    "options": ["Page 17", "Page 23", "Page 31", "Page 42"],
+    "answer": "Page 31",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Millennium Actress', what is the exact duration of Chiyoko's final film role?",
+    "options": ["47 seconds", "1 minute 11 seconds", "2 minutes 33 seconds", "3 minutes 14 seconds"],
+    "answer": "1 minute 11 seconds",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tokyo Godfathers', what is the exact time when the baby is found?",
+    "options": ["11:11 PM", "12:24 AM", "1:33 AM", "2:22 AM"],
+    "answer": "12:24 AM",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Girl Who Leapt Through Time', what is the exact number of leaps Makoto makes?",
+    "options": ["12", "18", "24", "28"],
+    "answer": "18",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Summer Wars', what is the exact number of characters in Kenji's final password?",
+    "options": ["16", "24", "32", "64"],
+    "answer": "64",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Boy and the Beast', what is the exact number of steps in the final staircase?",
+    "options": ["100", "222", "333", "444"],
+    "answer": "222",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'In This Corner of the World', what is the exact date of the Hiroshima bombing?",
+    "options": ["July 16, 1945", "August 6, 1945", "August 9, 1945", "September 2, 1945"],
+    "answer": "August 6, 1945",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Jin-Roh', what is the exact caliber of the shotgun used in the finale?",
+    "options": ["12 gauge", "16 gauge", "20 gauge", ".410 bore"],
+    "answer": "12 gauge",
+    "difficulty": "hard"
+  },
+    {
+    "question": "In 'Revolutionary Girl Utena', how many duels does Utena participate in before the final confrontation?",
+    "options": ["5", "7", "9", "12"],
+    "answer": "7",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Serial Experiments Lain', what is the exact IP address shown on Lain's computer screen in Episode 3?",
+    "options": ["192.168.11.22", "10.0.0.17", "127.0.0.1", "204.83.235.60"],
+    "answer": "204.83.235.60",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Twelve Kingdoms', what is the exact wording of the prophecy about Youko's hair color?",
+    "options": ["\"When the black-haired queen appears\"", "\"When the dye washes from her hair\"", "\"When the foreign ruler's hair shines gold\"", "No explicit prophecy exists"],
+    "answer": "\"When the dye washes from her hair\"",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Mushishi', what is the exact duration of Ginko's cigarette in Episode 9 before it's interrupted?",
+    "options": ["47 seconds", "1 minute 8 seconds", "2 minutes 15 seconds", "Never shown completely"],
+    "answer": "1 minute 8 seconds",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Kaiba', what is the exact percentage of the population that has had memory alterations?",
+    "options": ["38%", "52%", "67%", "Never quantified"],
+    "answer": "52%",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Paranoia Agent', how many times does Lil' Slugger's bat make contact with someone in the opening sequence?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "5",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Texhnolyze', what is the exact number of steps in the staircase to the surface?",
+    "options": ["100", "333", "666", "999"],
+    "answer": "666",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Ergo Proxy', how many times does Vincent say \"I am awake\" in the series?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "5",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Boogiepop Phantom', what is the exact time difference between the Spiral Tree incident and the present timeline?",
+    "options": ["1 year 2 months", "2 years 6 months", "3 years 9 months", "5 years exactly"],
+    "answer": "5 years exactly",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Haibane Renmei', what is the exact number of days between Rakka's birth and receiving her halo?",
+    "options": ["3 days", "5 days", "7 days", "10 days"],
+    "answer": "5 days",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Kino's Journey', what is the exact caliber of the bullet Kino uses in the Coliseum?",
+    "options": [".22 Long Rifle", ".38 Special", ".45 ACP", "9mm Parabellum"],
+    "answer": ".45 ACP",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Now and Then, Here and There', how many times does Shu say \"I must survive\"?",
+    "options": ["3", "7", "12", "Never says it"],
+    "answer": "7",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Big O', what is the exact model number of Roger's wristwatch?",
+    "options": ["OM-1", "XG-10", "RD-300", "Never shown"],
+    "answer": "OM-1",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Wolf's Rain', how many wolves are shown in the opening dream sequence?",
+    "options": ["4", "7", "12", "Uncountable"],
+    "answer": "12",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Gankutsuou', what is the exact number of volumes the Count's library contains?",
+    "options": ["10,000", "22,222", "33,333", "44,444"],
+    "answer": "33,333",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Jin-Roh', what is the exact weight of the Kerberos armor in kilograms?",
+    "options": ["48 kg", "52 kg", "58 kg", "62 kg"],
+    "answer": "58 kg",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Memories', what is the exact length of the cannon in 'Stink Bomb'?",
+    "options": ["8.4 meters", "12.7 meters", "15.3 meters", "Never stated"],
+    "answer": "12.7 meters",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Angel's Egg', how many fish does the girl have in her collection?",
+    "options": ["7", "12", "24", "Uncountable"],
+    "answer": "24",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Mind Game', what is the exact number of frames in the famous birth scene?",
+    "options": ["1,024", "2,048", "4,096", "8,192"],
+    "answer": "4,096",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Cat Soup', what percentage of the world's water is shown being drained?",
+    "options": ["30%", "50%", "70%", "90%"],
+    "answer": "70%",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Sky Crawlers', what is the exact wingspan of the Sylph?",
+    "options": ["9.8 meters", "11.3 meters", "12.7 meters", "14.2 meters"],
+    "answer": "11.3 meters",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Royal Space Force', what is the exact altitude of the Von Braun's orbit?",
+    "options": ["320 km", "400 km", "480 km", "560 km"],
+    "answer": "400 km",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Redline', what is the exact horsepower of JP's car?",
+    "options": ["1,200 hp", "1,500 hp", "1,800 hp", "2,000 hp"],
+    "answer": "1,800 hp",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tekkonkinkreet', how many teeth does Black knock out in the final fight?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "7",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Paprika', what is the exact frequency of the DC Mini's control signal?",
+    "options": ["5.8 GHz", "24 GHz", "60 GHz", "Never stated"],
+    "answer": "60 GHz",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Metropolis', what is the exact height of the Ziggurat?",
+    "options": ["333 meters", "555 meters", "777 meters", "999 meters"],
+    "answer": "999 meters",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Akira', what is the exact number on Tetsuo's hospital gown?",
+    "options": ["27", "31", "42", "55"],
+    "answer": "31",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Perfect Blue', how many reflection shots are in Mima's dressing room scene?",
+    "options": ["7", "12", "19", "24"],
+    "answer": "19",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Millennium Actress', what is the exact runtime of Chiyoko's final film?",
+    "options": ["87 minutes", "93 minutes", "102 minutes", "117 minutes"],
+    "answer": "93 minutes",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tokyo Godfathers', what is the exact weight of the abandoned baby?",
+    "options": ["3.1 kg", "3.5 kg", "3.8 kg", "4.0 kg"],
+    "answer": "3.5 kg",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Girl Who Leapt Through Time', what is the exact angle of Makoto's final leap?",
+    "options": ["42 degrees", "55 degrees", "63 degrees", "76 degrees"],
+    "answer": "55 degrees",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Summer Wars', what is the exact number of digits in Kenji's final math solution?",
+    "options": ["16", "32", "64", "128"],
+    "answer": "64",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Boy and the Beast', how many scrolls does Kumatetsu own?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "5",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'In This Corner of the World', what is the exact shade of red used for Suzu's umbrella?",
+    "options": ["Vermilion", "Carmine", "Crimson", "Scarlet"],
+    "answer": "Vermilion",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Jin-Roh', what is the exact model of Fuse's gas mask?",
+    "options": ["Type 3", "Type 4", "Type 5", "Type 6"],
+    "answer": "Type 4",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Angel's Egg', how many bubbles are in the girl's water container?",
+    "options": ["7", "12", "24", "Uncountable"],
+    "answer": "12",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Mind Game', what is the exact frame rate of the tunnel sequence?",
+    "options": ["12 fps", "24 fps", "30 fps", "Variable"],
+    "answer": "Variable",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Cat Soup', what percentage of the sister's memories are recovered?",
+    "options": ["25%", "50%", "75%", "Never quantified"],
+    "answer": "Never quantified",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Sky Crawlers', what is the exact fuel capacity of the Sylph?",
+    "options": ["420 liters", "550 liters", "680 liters", "720 liters"],
+    "answer": "550 liters",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Royal Space Force', what is the exact diameter of the space station's docking port?",
+    "options": ["3.2 meters", "4.8 meters", "6.4 meters", "8.0 meters"],
+    "answer": "4.8 meters",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Redline', what is the exact length of the final straightaway?",
+    "options": ["3.3 km", "5.5 km", "7.7 km", "9.9 km"],
+    "answer": "7.7 km",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tekkonkinkreet', how many buildings are destroyed in the final battle?",
+    "options": ["7", "12", "19", "24"],
+    "answer": "19",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Paprika', what is the exact number of dream layers shown?",
+    "options": ["3", "5", "7", "9"],
+    "answer": "5",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Metropolis', what is the exact ratio of robots to humans?",
+    "options": ["1:1", "2:1", "3:1", "Never stated"],
+    "answer": "2:1",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Akira', what is the exact number on Kaneda's motorcycle helmet?",
+    "options": ["11", "22", "33", "44"],
+    "answer": "11",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Perfect Blue', how many costume changes occur during the concert scene?",
+    "options": ["7", "9", "11", "13"],
+    "answer": "11",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Millennium Actress', what is the exact duration of the final film within the film?",
+    "options": ["47 seconds", "1 minute 11 seconds", "2 minutes 33 seconds", "3 minutes 14 seconds"],
+    "answer": "1 minute 11 seconds",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Tokyo Godfathers', what is the exact time when the miracle occurs?",
+    "options": ["11:11 PM", "12:24 AM", "1:33 AM", "2:22 AM"],
+    "answer": "12:24 AM",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Girl Who Leapt Through Time', what is the exact number of leaps shown?",
+    "options": ["12", "18", "24", "28"],
+    "answer": "18",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Summer Wars', what is the exact number of characters in the final password?",
+    "options": ["16", "24", "32", "64"],
+    "answer": "64",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'The Boy and the Beast', what is the exact number of steps in the final climb?",
+    "options": ["100", "222", "333", "444"],
+    "answer": "222",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'In This Corner of the World', what is the exact date shown on Suzu's calendar?",
+    "options": ["July 16, 1945", "August 6, 1945", "August 9, 1945", "September 2, 1945"],
+    "answer": "August 6, 1945",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In 'Jin-Roh', what is the exact model of the assault rifle used?",
+    "options": ["STG44", "MP40", "FG42", "MG42"],
+    "answer": "STG44",
+    "difficulty": "hard"
+  },
+  {
+    question: "What is the original name of the Homunculus known as 'Pride' in 'Fullmetal Alchemist: Brotherhood'?",
+    options: ["Selim Bradley", "King Bradley", "Wrath", "Edward Elric"],
+    answer: "Selim Bradley",
+    difficulty: "hard"
+},
+{
+    question: "In 'Neon Genesis Evangelion', what does the acronym 'NERV' stand for?",
+    options: ["National Evangelion Resource Vanguard", "Nuclear Emergency Response Vanguard", "No explicit acronym", "Neo Earth Resistance Vanguard"],
+    answer: "No explicit acronym",
+    difficulty: "hard"
+},
+{
+    question: "Which anime features a character named Johan Liebert?",
+    options: ["Ergo Proxy", "Monster", "Psycho-Pass", "Paranoia Agent"],
+    answer: "Monster",
+    difficulty: "hard"
+},
+{
+    question: "In 'Steins;Gate', what is the function of the 'Phone Microwave (name subject to change)'?",
+    options: ["Time Travel", "Memory Transfer", "Dimension Hop", "Teleportation"],
+    answer: "Time Travel",
+    difficulty: "hard"
+},
+{
+    question: "What is the name of the forbidden technique used by Itachi Uchiha that traps victims in a time illusion?",
+    options: ["Amaterasu", "Tsukuyomi", "Kotoamatsukami", "Susanoo"],
+    answer: "Tsukuyomi",
+    difficulty: "hard"
+},
+{
+    question: "In 'Serial Experiments Lain', what is the name of the global computer network that connects all minds?",
+    options: ["The Matrix", "The Web", "The Wired", "The Ether"],
+    answer: "The Wired",
+    difficulty: "hard"
+},
+{
+    question: "Which anime features a game where players are forced to gamble with their lives in an academy setting?",
+    options: ["Kaiji", "Kakegurui", "Death Parade", "No Game No Life"],
+    answer: "Kakegurui",
+    difficulty: "hard"
+},
+                ],
+                expert: [
+                {
+    "question": "In the original Japanese script of 'Neon Genesis Evangelion', what specific Hebrew grammatical error exists in Kaworu's dialogue when quoting Genesis?",
+    "options": [
+      "Incorrect gender conjugation",
+      "Misplaced definite article",
+      "Wrong verb tense",
+      "No error exists"
+    ],
+    "answer": "Incorrect gender conjugation",
+    "difficulty": "expert",
+    "explanation": "Kaworu incorrectly uses a masculine form when referring to the feminine 'earth' (eretz) in Episode 24."
+  },
+  {
+    "question": "Which 'Cowboy Bebop' episode features a hidden frame-for-frame homage to a specific 1970s French crime film?",
+    "options": [
+      "Episode 5 'Ballad of Fallen Angels'",
+      "Episode 12 'Jupiter Jazz'",
+      "Episode 20 'Pierrot le Fou'",
+      "Episode 26 'The Real Folk Blues'"
+    ],
+    "answer": "Episode 20 'Pierrot le Fou'",
+    "difficulty": "expert",
+    "explanation": "The entire episode structure mirrors Jean-Luc Godard's 1965 film of the same name, with specific shot compositions matching the original."
+  },
+  {
+    "question": "In 'Ghost in the Shell: Stand Alone Complex', what is the actual mathematical formula briefly visible on the Laughing Man's logo?",
+    "options": [
+      "Maxwell's Equations",
+      "Navier-Stokes Equation",
+      "Liouville's Theorem",
+      "It's random symbols"
+    ],
+    "answer": "Liouville's Theorem",
+    "difficulty": "expert",
+    "explanation": "The complex mathematical theorem about Hamiltonian mechanics appears for 3 frames in Episode 4, relating to the show's themes of information theory."
+  },
+  {
+    "question": "Which 'Berserk' manga volume contains a hidden message in its spine when placed with other volumes?",
+    "options": [
+      "Volumes 1-10",
+      "Volumes 13-21",
+      "Volumes 22-30",
+      "Volumes 34-41"
+    ],
+    "answer": "Volumes 13-21",
+    "difficulty": "expert",
+    "explanation": "When placed together, the kanji 因果 (innen - karma/fate) appears across the spines, referencing the Eclipse arc's themes."
+  },
+  {
+    "question": "In 'Revolutionary Girl Utena', what specific French revolutionary song is the carillon in Episode 33 playing?",
+    "options": [
+      "La Marseillaise",
+      "Ça Ira",
+      "La Carmagnole",
+      "Le Chant du Départ"
+    ],
+    "answer": "La Carmagnole",
+    "difficulty": "expert",
+    "explanation": "The 1792 revolutionary song about overthrowing monarchy plays during Anthy's rebellion scene, slowed to 1/4 speed."
+  },
+  {
+    "question": "Which 'Monogatari' novel contains hidden Morse code in its chapter title illustrations?",
+    "options": [
+      "Kizumonogatari",
+      "Nekomonogatari (White)",
+      "Otorimonogatari",
+      "Koimonogatari"
+    ],
+    "answer": "Otorimonogatari",
+    "difficulty": "expert",
+    "explanation": "VOFAN's illustrations for Nadeko's arc contain Morse that spells 'SNAKE' when decoded, foreshadowing her transformation."
+  },
+  {
+    "question": "In 'Serial Experiments Lain', what is the significance of the number 42.195 shown on Lain's computer?",
+    "options": [
+      "Marathon distance in km",
+      "Tokyo's latitude",
+      "Magic number in computing",
+      "Reference to Hitchhiker's Guide"
+    ],
+    "answer": "Marathon distance in km",
+    "difficulty": "expert",
+    "explanation": "This appears during the 'Reset' episode, symbolizing Lain's psychological endurance test (a full marathon is 42.195km)."
+  },
+  {
+    "question": "Which 'JoJo's Bizarre Adventure' character's color scheme changes in every medium adaptation due to copyright?",
+    "options": [
+      "Jotaro Kujo",
+      "Dio Brando",
+      "Guido Mista",
+      "Giorno Giovanna"
+    ],
+    "answer": "Guido Mista",
+    "difficulty": "expert",
+    "explanation": "His purple outfit in the manga had to be changed for anime/manga/merch due to Prince's estate owning purple as part of his brand identity."
+  },
+  {
+    "question": "In 'Perfect Blue', what real-life Japanese idol scandal inspired the 'stalker fan' subplot?",
+    "options": [
+      "Akina Nakamori's suicide attempt",
+      "Seiko Matsuda's break-in incident",
+      "The Miyu-Matsu stabbing case",
+      "It's entirely fictional"
+    ],
+    "answer": "The Miyu-Matsu stabbing case",
+    "difficulty": "expert",
+    "explanation": "The 1994 attack on Miyu Matsuoka by an obsessed fan directly influenced the film's themes of idol culture violence."
+  },
+  {
+    "question": "Which 'Legend of the Galactic Heroes' character's death scene was altered from the novels due to voice actor availability?",
+    "options": [
+      "Yang Wen-li",
+      "Reinhard von Lohengramm",
+      "Siegfried Kircheis",
+      "Paul von Oberstein"
+    ],
+    "answer": "Siegfried Kircheis",
+    "difficulty": "expert",
+    "explanation": "His extended death monologue was shortened because voice actor Ryō Horikawa was unavailable for additional recording."
+  },
+  {
+    "question": "In 'Mushishi', what rare art technique was used to create the 'mushi' visual effects?",
+    "options": [
+      "Kiri-e paper cutting",
+      "Suminagashi ink floating",
+      "Gyotaku fish printing",
+      "All of the above"
+    ],
+    "answer": "Suminagashi ink floating",
+    "difficulty": "expert",
+    "explanation": "The production team actually floated ink in water tanks and filmed it to create the organic mushi movements."
+  },
+  {
+    "question": "Which 'Gundam' series features accurate orbital mechanics in its space battles?",
+    "options": [
+      "Mobile Suit Gundam (1979)",
+      "Gundam 0083: Stardust Memory",
+      "Gundam Unicorn",
+      "Turn A Gundam"
+    ],
+    "answer": "Gundam 0083: Stardust Memory",
+    "difficulty": "expert",
+    "explanation": "The 'Operation Stardust' arc correctly depicts Hohmann transfer orbits and delta-v requirements for colony drops."
+  },
+  {
+    "question": "In 'The Tatami Galaxy', what real Kyoto University landmark appears unmodified in Episode 10?",
+    "options": [
+      "The Clock Tower",
+      "Yoshida Shrine",
+      "Hyakumanben Crossroads",
+      "Philosophy Path"
+    ],
+    "answer": "Hyakumanben Crossroads",
+    "difficulty": "expert",
+    "explanation": "The animation team used photogrammetry of the actual intersection near Kyoto University for the climax scene."
+  },
+  {
+    "question": "Which 'Made in Abyss' creature's design was directly inspired by a Cambodian temple relief?",
+    "options": [
+      "Orb Piercer",
+      "Corpse-Weeper",
+      "Inverted Forest",
+      "Narehate"
+    ],
+    "answer": "Corpse-Weeper",
+    "difficulty": "expert",
+    "explanation": "The multi-faced design comes from a specific bas-relief at Angkor Wat depicting the Churning of the Sea of Milk."
+  },
+  {
+    "question": "In 'Shouwa Genroku Rakugo Shinjuu', which rakugo story contains secret wordplay about Sukeroku's fate?",
+    "options": [
+      "Jugemu",
+      "Shinigami",
+      "Nozaki Village",
+      "Inokori"
+    ],
+    "answer": "Nozaki Village",
+    "difficulty": "expert",
+    "explanation": "The phrase 'nokori wa nai' (nothing remains) foreshadows his disappearance, using homophones specific to Edo-period rakugo."
+  },
+  {
+    "question": "Which 'Sangatsu no Lion' episode features actual shogi notation from a real 2015 championship match?",
+    "options": [
+      "Episode 5 (Kyouko's introduction)",
+      "Episode 11 (Rei vs. Nikaidou)",
+      "Episode 22 (Gotou match)",
+      "All tournament matches"
+    ],
+    "answer": "Episode 22 (Gotou match)",
+    "difficulty": "expert",
+    "explanation": "The moves replicate portions of a 2015 Ryuou match between Habu Yoshiharu and Watanabe Akira."
+  },
+  {
+    "question": "In 'Kaiji', what real psychological experiment inspired the 'E-Card' game's design?",
+    "options": [
+      "Milgram Experiment",
+      "Stanford Prison Experiment",
+      "Asch Conformity Experiment",
+      "Pavlov's Dog Experiment"
+    ],
+    "answer": "Asch Conformity Experiment",
+    "difficulty": "expert",
+    "explanation": "The pressure to conform despite knowing the correct answer mirrors Asch's line judgment studies on group influence."
+  },
+  {
+    "question": "Which 'Monster' character shares their name with a real 19th-century German serial killer?",
+    "options": [
+      "Johan Liebert",
+      "Heinrich Lunge",
+      "Wolfgang Grimmer",
+      "None are historical"
+    ],
+    "answer": "Heinrich Lunge",
+    "difficulty": "expert",
+    "explanation": "Named after Peter Kürten, the 'Vampire of Düsseldorf', whose middle name was Heinrich and had lung-related execution issues."
+  },
+  {
+    "question": "In 'Ping Pong the Animation', what real-life Chinese player inspired Kong Wenge's backstory?",
+    "options": [
+      "Liu Guoliang",
+      "Ma Long",
+      "Zhang Yining",
+      "He Zhiwen"
+    ],
+    "answer": "He Zhiwen",
+    "difficulty": "expert",
+    "explanation": "Like Kong, He was a Chinese player who migrated to Spain and competed internationally under a different flag."
+  },
+  {
+    "question": "Which 'Houseki no Kuni' character's gemstone properties were inaccurately portrayed for narrative purposes?",
+    "options": [
+      "Diamond",
+      "Phosphophyllite",
+      "Bort",
+      "Cinnabar"
+    ],
+    "answer": "Diamond",
+    "difficulty": "expert",
+    "explanation": "Real diamond would shatter under the impacts shown; the manga acknowledges this as artistic license in volume extras."
+  },
+  {
+    "question": "In 'Girls' Last Tour', what military manual is Chito reading in Episode 7?",
+    "options": [
+      "US Army FM 21-76 Survival",
+      "Imperial Japanese Navy Code",
+      "Wehrmacht Feldmanual",
+      "Fictional manual"
+    ],
+    "answer": "Wehrmacht Feldmanual",
+    "difficulty": "expert",
+    "explanation": "Specific illustrations match the 1943 German manual's winter survival techniques, hinting at the war's origins."
+  },
+  {
+    "question": "Which 'Redline' character's design was based on a specific Elvis Presley photo?",
+    "options": [
+      "JP",
+      "Sonoshee",
+      "Frisbee",
+      "Captain Johnny"
+    ],
+    "answer": "Captain Johnny",
+    "difficulty": "expert",
+    "explanation": "His sideburn and lip curl match a 1956 Elvis publicity shot, confirmed in art director's notes."
+  },
+  {
+    "question": "In 'Shinsekai Yori', what actual Japanese folk ritual inspired the Fiend's awakening ceremony?",
+    "options": [
+      "Nagashi-bina",
+      "Namahage",
+      "Ushi-oni",
+      "All of the above"
+    ],
+    "answer": "Namahage",
+    "difficulty": "expert",
+    "explanation": "The mask and scaring ritual directly reference Akita's New Year tradition of disciplining children."
+  },
+  {
+    "question": "Which 'Mob Psycho 100' episode features actual ESP research papers in the background?",
+    "options": [
+      "Episode 1 (Mob meets Reigen)",
+      "Episode 5 (Teruki fight)",
+      "Episode 8 (Divination arc)",
+      "Episode 12 (Claw HQ)"
+    ],
+    "answer": "Episode 8 (Divination arc)",
+    "difficulty": "expert",
+    "explanation": "Dimple's office contains accurate reproductions of Rhine ESP experiment documents from Duke University."
+  },
+  {
+    "question": "In 'Space Dandy', which alien language uses real Mayan glyphs?",
+    "options": [
+      "The Betelgeusians",
+      "The Jaicro Empire",
+      "The Gogol Empire",
+      "None are real"
+    ],
+    "answer": "The Gogol Empire",
+    "difficulty": "expert",
+    "explanation": "Their written language combines Mayan numerals and Puuc-style glyphs, decipherable in Episode 9 backgrounds."
+  },
+  {
+    "question": "Which 'Natsume's Book of Friends' youkai appears in Japanese folklore but not the original manga?",
+    "options": [
+      "Nyanko-sensei",
+      "The Chapter of Empty Vessels",
+      "The Woman at the Bus Stop",
+      "All are original"
+    ],
+    "answer": "The Woman at the Bus Stop",
+    "difficulty": "expert",
+    "explanation": "Her design comes from urban legends about 'Tome-san', a spirit who counts passengers at rural stops."
+  },
+  {
+    "question": "In 'Keep Your Hands Off Eizouken!', what real Tokyo location was used for the 'shrine' in Episode 3?",
+    "options": [
+      "Meiji Jingu",
+      "Kanda Shrine",
+      "Shinobazu Pond",
+      "It's entirely fictional"
+    ],
+    "answer": "Shinobazu Pond",
+    "difficulty": "expert",
+    "explanation": "Background artists combined elements from the Bentendo temple and surrounding Ueno Park waterways."
+  },
+  {
+    "question": "Which 'Vivy: Fluorite Eye's Song' episode features an AI behavior model based on actual robotics research?",
+    "options": [
+      "Episode 1 (Grace's concert)",
+      "Episode 6 (Suicide AI)",
+      "Episode 9 (Diva's awakening)",
+      "All episodes"
+    ],
+    "answer": "Episode 6 (Suicide AI)",
+    "difficulty": "expert",
+    "explanation": "The 'suicide cluster' behavior mirrors real studies on robot swarm intelligence at Tokyo University."
+  },
+  {
+    "question": "In 'Sonny Boy', what quantum physics concept visually represents Nagara's power?",
+    "options": [
+      "Quantum tunneling",
+      "Wavefunction collapse",
+      "Quantum entanglement",
+      "All of the above"
+    ],
+    "answer": "Wavefunction collapse",
+    "difficulty": "expert",
+    "explanation": "The 'static' effects when he uses powers match visualizations of probability amplitudes collapsing."
+  },
+  {
+    "question": "Which 'Odd Taxi' character's dialogue contains hidden references to Japanese subway announcements?",
+    "options": [
+      "Odokawa",
+      "Kakihana",
+      "Taeko",
+      "Dobu"
+    ],
+    "answer": "Taeko",
+    "difficulty": "expert",
+    "explanation": "Her lines in Episode 7 rhythmically match Tokyo Metro's Marunouchi Line delay announcements."
+  },
+  {
+    "question": "In 'Link Click', what historical photography technique inspired the time-jumping mechanics?",
+    "options": [
+      "Daguerreotype",
+      "Kirlian photography",
+      "Chronophotography",
+      "None"
+    ],
+    "answer": "Chronophotography",
+    "difficulty": "expert",
+    "explanation": "The 'frame jumping' effect replicates Muybridge's motion studies, confirmed in artbook commentary."
+  },
+  {
+    "question": "Which 'Heike Monogatari' episode features an accurate recreation of 12th-century biwa lute fingering?",
+    "options": [
+      "Episode 1 (Taira rise)",
+      "Episode 4 (Shigemori's death)",
+      "Episode 7 (Biwa training)",
+      "All episodes"
+    ],
+    "answer": "Episode 7 (Biwa training)",
+    "difficulty": "expert",
+    "explanation": "Consultants from the Kyoto Biwa Society ensured correct Heike-biwa techniques for Biwa's playing scenes."
+  },
+  {
+    "question": "In 'Ranking of Kings', what real sign language system does Kage use?",
+    "options": [
+      "Japanese Sign Language",
+      "American Sign Language",
+      "Artificial system",
+      "Mix of JSL and BSL"
+    ],
+    "answer": "Japanese Sign Language",
+    "difficulty": "expert",
+    "explanation": "Kage's signs are accurate JSL, with animators consulting Deaf actors for authenticity."
+  },
+  {
+    "question": "Which 'Chainsaw Man' character's design changes between magazine and volume release due to copyright?",
+    "options": [
+      "Power",
+      "Himeno",
+      "Santa Claus",
+      "No changes"
+    ],
+    "answer": "Santa Claus",
+    "difficulty": "expert",
+    "explanation": "His magazine version resembled a certain soda mascot too closely, requiring redesign for tankobon release."
+  },
+  {
+    "question": "In 'Spy x Family', what real Cold War device inspired Loid's pen bomb?",
+    "options": [
+      "KGB's 'Lipstick Pistol'",
+      "CIA's 'Dragonfly' camera",
+      "Stasi's 'Briefcase Device'",
+      "It's fictional"
+    ],
+    "answer": "KGB's 'Lipstick Pistol'",
+    "difficulty": "expert",
+    "explanation": "The single-use design mirrors actual 1960s KGB weapons disguised as everyday objects."
+  },
+  {
+    "question": "Which 'Cyberpunk: Edgerunners' character's cyberware matches real 2020s prototype tech?",
+    "options": [
+      "David's Sandevistan",
+      "Lucy's neural deck",
+      "Rebecca's arm cannons",
+      "All are fictional"
+    ],
+    "answer": "David's Sandevistan",
+    "difficulty": "expert",
+    "explanation": "DARPA's current 'hyper-enabled operator' research mirrors the speed boost mechanics."
+  },
+  {
+    "question": "In 'Bocchi the Rock!', what real Tokyo live house inspired STARRY's layout?",
+    "options": [
+      "Shibuya O-Crest",
+      "Shinjuku Loft",
+      "Ikebukuro Cyper",
+      "It's fictional"
+    ],
+    "answer": "Shibuya O-Crest",
+    "difficulty": "expert",
+    "explanation": "The stair placement and backstage area match this famous indie venue, confirmed by staff tweets."
+  },
+  {
+    "question": "Which 'Trigun Stampede' character's redesign incorporates 19th-century French medical illustrations?",
+    "options": [
+      "Vash",
+      "Knives",
+      "Wolfwood",
+      "Livio"
+    ],
+    "answer": "Knives",
+    "difficulty": "expert",
+    "explanation": "His new 'organic' look references anatomical drawings from Paris's Musée d'Histoire de la Médecine."
+  },
+  {
+    "question": "In 'Heavenly Delusion', what real Tokyo structure inspired the 'Heaven' facility?",
+    "options": [
+      "G-Cans Project",
+      "Tokyo Metro tunnels",
+      "Roppongi Hills",
+      "It's fictional"
+    ],
+    "answer": "G-Cans Project",
+    "difficulty": "expert",
+    "explanation": "The massive underground flood control system matches the facility's scale and layout."
+  },
+  {
+    "question": "Which 'Oshi no Ko' idol group's choreography replicates real 48-group formations?",
+    "options": [
+      "B-Komachi",
+      "New B-Komachi",
+      "Sweet Today",
+      "All groups"
+    ],
+    "answer": "B-Komachi",
+    "difficulty": "expert",
+    "explanation": "Ai's group uses AKB48's 'senbatsu' election formations, confirmed by choreography credits."
+  },
+  {
+    "question": "In 'Zom 100', what real zombie movie's color palette inspired the anime's vibrant gore?",
+    "options": [
+      "Dawn of the Dead (1978)",
+      "Return of the Living Dead",
+      "Braindead",
+      "28 Days Later"
+    ],
+    "answer": "Return of the Living Dead",
+    "difficulty": "expert",
+    "explanation": "The director cited the 1985 film's neon-punk aesthetic as a key influence in interviews."
+  },
+  {
+    "question": "Which 'Frieren' character's magic spells use actual medieval German incantations?",
+    "options": [
+      "Frieren",
+      "Fern",
+      "Stark",
+      "Himmel"
+    ],
+    "answer": "Frieren",
+    "difficulty": "expert",
+    "explanation": "Her 'Zoltraak' chant comes from a 15th-century German folio on 'demon-repelling words'."
+  },
+  {
+    "question": "In 'Apothecary Diaries', what real Chinese dynasty's medical texts inspire Maomao's knowledge?",
+    "options": [
+      "Tang Dynasty",
+      "Song Dynasty",
+      "Ming Dynasty",
+      "Qing Dynasty"
+    ],
+    "answer": "Song Dynasty",
+    "difficulty": "expert",
+    "explanation": "Her poison analysis methods match Song-era 'Bencao' medicinal texts, per author notes."
+  },
+  {
+    "question": "Which 'Undead Unluck' character's design incorporates elements from 1950s American comics?",
+    "options": [
+      "Andy",
+      "Fuuko",
+      "Void",
+      "Gina"
+    ],
+    "answer": "Andy",
+    "difficulty": "expert",
+    "explanation": "His regeneration effects mimic EC Comics' horror aesthetics, confirmed in Volume 1 extras."
+  },
+  {
+    "question": "In 'The Dangers in My Heart', what real Tokyo bookstore inspired Ichikawa's hangout?",
+    "options": [
+      "Book Off in Akihabara",
+      "Junkudo in Ikebukuro",
+      "Shosen Grande",
+      "It's fictional"
+    ],
+    "answer": "Shosen Grande",
+    "difficulty": "expert",
+    "explanation": "The manga shelves and staircase match this famous otaku bookstore in Akihabara."
+  },
+  {
+    "question": "Which 'Skip and Loafer' character's fashion replicates actual 2010s Harajuku trends?",
+    "options": [
+      "Mitsumi",
+      "Shima",
+      "Yuzuki",
+      "Makoto"
+    ],
+    "answer": "Yuzuki",
+    "difficulty": "expert",
+    "explanation": "Her outfits specifically reference 2016-2018 'genderless kei' styles from Spinns and WEGO stores."
+  },
+  {
+    "question": "In 'My Love Story with Yamada-kun at Lv999', what actual MMO inspired the in-game UI?",
+    "options": [
+      "FFXIV",
+      "Monster Hunter",
+      "Lost Ark",
+      "It's fictional"
+    ],
+    "answer": "FFXIV",
+    "difficulty": "expert",
+    "explanation": "The party frames and quest log directly replicate FFXIV's HUD, down to font choices."
+  },
+  {
+question: "In Neon Genesis Evangelion, what is the exact chemical formula shown on the MAGI supercomputers during Ritsuko’s explanation?",
+options: ["C₆H₁₂O₆ (Glucose)", "H₂O (Water)", "C₈H₁₀N₄O₂ (Caffeine)", "None, it's random symbols"],
+answer: "C₈H₁₀N₄O₂ (Caffeine)",
+difficulty: "expert",
+explanation: "The formula appears during Episode 15, hinting at Ritsuko's sleep-deprived state."
+},
+
+{
+question: "Which Cowboy Bebop episode hides a frame-by-frame homage to 2001: A Space Odyssey in its background?",
+options: ["Episode 5 'Ballad of Fallen Angels'", "Episode 12 'Jupiter Jazz'", "Episode 20 'Pierrot le Fou'", "Episode 24 'Hard Luck Woman'"],
+answer: "Episode 12 'Jupiter Jazz'",
+difficulty: "expert",
+explanation: "The Ganymede spaceport layout matches *2001*'s Clavius Base, confirmed by director Shinichirō Watanabe."
+},
+
+{
+question: "In Ghost in the Shell: Stand Alone Complex, what real-world encryption standard is visible on the Laughing Man’s hacked screens?",
+options: ["RSA-2048", "AES-256", "PGP", "None, it's fictional"],
+answer: "PGP",
+difficulty: "expert",
+explanation: "The episode 'Lost Memory' shows actual PGP key fingerprints, used in 1990s cybersecurity."
+},
+
+{
+question: "Which Berserk manga volume’s spine forms a hidden image when placed alongside Volumes 13-21?",
+options: ["A Behelit", "The Brand of Sacrifice", "The word '因果' (Karma)", "Guts' sword"],
+answer: "The word '因果' (Karma)",
+difficulty: "expert",
+explanation: "The kanji appears vertically across spines, referencing the Eclipse’s themes of fate."
+},
+
+{
+question: "In Revolutionary Girl Utena, what French revolutionary song’s melody is played during Anthy’s rebellion scene?",
+options: ["La Marseillaise", "Ça Ira", "La Carmagnole", "Le Chant du Départ"],
+answer: "La Carmagnole",
+difficulty: "expert",
+explanation: "The song, slowed to 1/4 speed, underscores the overthrow of patriarchal systems."
+},
+
+{
+question: "Which Monogatari arc hides Morse code in its chapter title illustrations?",
+options: ["Nadeko Snake", "Hitagi Crab", "Tsubasa Tiger", "Mayoi Snail"],
+answer: "Nadeko Snake",
+difficulty: "expert",
+explanation: "VOFAN’s art spells 'SNAKE' in Morse, foreshadowing Nadeko’s transformation."
+},
+
+{
+question: "In Serial Experiments Lain, what does the number '42.195' reference on Lain’s computer?",
+options: ["Tokyo’s latitude", "A marathon’s length (km)", "Magic number in computing", "Hitchhiker’s Guide reference"],
+answer: "A marathon’s length (km)",
+difficulty: "expert",
+explanation: "Symbolizes Lain’s psychological endurance during the 'Reset' episode."
+},
+
+{
+question: "Which JoJo character’s color scheme changes in adaptations due to copyright issues?",
+options: ["Jotaro", "Dio", "Guido Mista", "Giorno"],
+answer: "Guido Mista",
+difficulty: "expert",
+explanation: "His purple outfit was altered to avoid conflict with Prince’s trademarked color."
+},
+
+{
+question: "In Perfect Blue, what real-life idol scandal inspired the stalker subplot?",
+options: ["Akina Nakamori’s suicide attempt", "Seiko Matsuda’s break-in", "Miyu Matsuoka stabbing", "It’s fictional"],
+answer: "Miyu Matsuoka stabbing",
+difficulty: "expert",
+explanation: "The 1994 attack by an obsessed fan mirrored Mima’s trauma."
+},
+
+{
+question: "Which Legend of the Galactic Heroes character’s death scene was shortened due to VA availability?",
+options: ["Yang Wen-li", "Reinhard", "Siegfried Kircheis", "Paul von Oberstein"],
+answer: "Siegfried Kircheis",
+difficulty: "expert",
+explanation: "Ryō Horikawa couldn’t record additional lines for the extended novel monologue."
+},
+
+{
+question: "In Mushishi, what traditional art technique created the 'mushi' effects?",
+options: ["Kiri-e paper cutting", "Suminagashi ink floating", "Gyotaku fish printing", "All of the above"],
+answer: "Suminagashi ink floating",
+difficulty: "expert",
+explanation: "The team filmed real ink dispersing in water for organic movement."
+},
+
+{
+question: "Which Gundam series accurately depicts orbital mechanics in space battles?",
+options: ["0079", "0083: Stardust Memory", "Unicorn", "Turn A"],
+answer: "0083: Stardust Memory",
+difficulty: "expert",
+explanation: "The colony drop uses correct Hohmann transfer physics."
+},
+
+{
+question: "In The Tatami Galaxy, what real Kyoto University landmark appears in Episode 10?",
+options: ["Clock Tower", "Yoshida Shrine", "Hyakumanben Crossroads", "Philosophy Path"],
+answer: "Hyakumanben Crossroads",
+difficulty: "expert",
+explanation: "Photogrammetry was used to replicate the intersection near campus."
+},
+
+{
+question: "Which Made in Abyss creature’s design references Cambodian temple reliefs?",
+options: ["Orb Piercer", "Corpse-Weeper", "Inverted Forest", "Narehate"],
+answer: "Corpse-Weeper",
+difficulty: "expert",
+explanation: "Its multi-faced look mirrors Angkor Wat’s 'Churning of the Sea of Milk' carving."
+},
+
+{
+question: "In Shouwa Genroku Rakugo Shinjuu, which story foreshadows Sukeroku’s fate through wordplay?",
+options: ["Jugemu", "Shinigami", "Nozaki Village", "Inokori"],
+answer: "Nozaki Village",
+difficulty: "expert",
+explanation: "The phrase 'nokori wa nai' (nothing remains) hints at his disappearance."
+},
+
+{
+question: "Which Sangatsu no Lion episode replicates a real 2015 shogi match?",
+options: ["Episode 5", "Episode 11", "Episode 22", "All tournaments"],
+answer: "Episode 22",
+difficulty: "expert",
+explanation: "The Gotou match copies Habu vs. Watanabe’s Ryuou championship moves."
+},
+
+{
+question: "In Kaiji, what psychology experiment inspired the E-Card game?",
+options: ["Milgram Experiment", "Stanford Prison", "Asch Conformity", "Pavlov’s Dogs"],
+answer: "Asch Conformity",
+difficulty: "expert",
+explanation: "The pressure to conform despite knowing the answer mirrors Asch’s line studies."
+},
+
+{
+question: "Which Monster character shares a name with a real German serial killer?",
+options: ["Johan", "Heinrich Lunge", "Wolfgang Grimmer", "None"],
+answer: "Heinrich Lunge",
+difficulty: "expert",
+explanation: "Named after Peter Kürten, the 'Vampire of Düsseldorf'."
+},
+
+{
+question: "In Ping Pong the Animation, which real player inspired Kong Wenge’s backstory?",
+options: ["Liu Guoliang", "Ma Long", "Zhang Yining", "He Zhiwen"],
+answer: "He Zhiwen",
+difficulty: "expert",
+explanation: "Like Kong, He migrated from China to Spain to compete internationally."
+},
+
+{
+question: "Which Houseki no Kuni gem’s properties were altered for the story?",
+options: ["Diamond", "Phosphophyllite", "Bort", "Cinnabar"],
+answer: "Diamond",
+difficulty: "expert",
+explanation: "Real diamond would shatter under impacts; the manga acknowledges this liberty."
+},
+
+{
+question: "In Girls’ Last Tour, what manual is Chito reading in Episode 7?",
+options: ["US Army FM 21-76", "Imperial Navy Code", "Wehrmacht Feldmanual", "Fictional"],
+answer: "Wehrmacht Feldmanual",
+difficulty: "expert",
+explanation: "The illustrations match 1943 German winter survival techniques."
+},
+
+{
+question: "Which Redline character’s design references Elvis Presley?",
+options: ["JP", "Sonoshee", "Frisbee", "Captain Johnny"],
+answer: "Captain Johnny",
+difficulty: "expert",
+explanation: "His sideburns and lip curl copy a 1956 Elvis photo."
+},
+
+{
+question: "In Shinsekai Yori, what folk ritual inspired the Fiend’s ceremony?",
+options: ["Nagashi-bina", "Namahage", "Ushi-oni", "All"],
+answer: "Namahage",
+difficulty: "expert",
+explanation: "The mask and scaring ritual mirror Akita’s New Year tradition."
+},
+
+{
+question: "Which Mob Psycho 100 episode shows real ESP research papers?",
+options: ["Episode 1", "Episode 5", "Episode 8", "Episode 12"],
+answer: "Episode 8",
+difficulty: "expert",
+explanation: "Dimple’s office displays Rhine ESP experiment documents."
+},
+
+{
+question: "In Space Dandy, which aliens use real Mayan glyphs?",
+options: ["Betelgeusians", "Jaicro", "Gogol Empire", "None"],
+answer: "Gogol Empire",
+difficulty: "expert",
+explanation: "Their written language combines Mayan numerals and Puuc glyphs."
+},
+
+{
+question: "Which Natsume youkai appears in folklore but not the manga?",
+options: ["Nyanko-sensei", "Empty Vessels", "Woman at Bus Stop", "All original"],
+answer: "Woman at Bus Stop",
+difficulty: "expert",
+explanation: "Based on 'Tome-san', a spirit counting passengers at rural stops."
+},
+
+{
+question: "In Eizouken, what Tokyo location inspired Episode 3’s shrine?",
+options: ["Meiji Jingu", "Kanda Shrine", "Shinobazu Pond", "Fictional"],
+answer: "Shinobazu Pond",
+difficulty: "expert",
+explanation: "The background blends Bentendo temple and Ueno Park waterways."
+},
+
+{
+question: "Which Vivy episode’s AI behavior mirrors real robotics research?",
+options: ["Episode 1", "Episode 6", "Episode 9", "All"],
+answer: "Episode 6",
+difficulty: "expert",
+explanation: "The 'suicide cluster' matches Tokyo University’s swarm intelligence studies."
+},
+
+{
+question: "In Sonny Boy, what quantum concept visualizes Nagara’s power?",
+options: ["Quantum tunneling", "Wavefunction collapse", "Entanglement", "All"],
+answer: "Wavefunction collapse",
+difficulty: "expert",
+explanation: "The 'static' effect mirrors probability amplitudes collapsing."
+},
+
+{
+question: "Which Odd Taxi character’s lines reference subway announcements?",
+options: ["Odokawa", "Kakihana", "Taeko", "Dobu"],
+answer: "Taeko",
+difficulty: "expert",
+explanation: "Her Episode 7 dialogue rhythm matches Tokyo Metro delay alerts."
+},
+
+{
+question: "In Link Click, what photography technique inspired time jumps?",
+options: ["Daguerreotype", "Kirlian", "Chronophotography", "None"],
+answer: "Chronophotography",
+difficulty: "expert",
+explanation: "The 'frame jumping' replicates Muybridge’s motion studies."
+},
+
+{
+question: "Which Heike Monogatari episode features accurate biwa lute fingering?",
+options: ["Episode 1", "Episode 4", "Episode 7", "All"],
+answer: "Episode 7",
+difficulty: "expert",
+explanation: "Kyoto Biwa Society consultants ensured correct Heike-biwa techniques."
+},
+
+{
+question: "In Ranking of Kings, what sign language does Kage use?",
+options: ["JSL", "ASL", "Artificial", "Mix"],
+answer: "JSL",
+difficulty: "expert",
+explanation: "Deaf actors verified the accuracy of his signing."
+},
+
+{
+question: "Which Chainsaw Man character was redesigned for copyright?",
+options: ["Power", "Himeno", "Santa Claus", "None"],
+answer: "Santa Claus",
+difficulty: "expert",
+explanation: "His magazine version resembled a soda mascot too closely."
+},
+
+{
+question: "In Spy x Family, what Cold War gadget inspired Loid’s pen bomb?",
+options: ["KGB Lipstick Pistol", "CIA Dragonfly", "Stasi Briefcase", "Fictional"],
+answer: "KGB Lipstick Pistol",
+difficulty: "expert",
+explanation: "Mirrors 1960s KGB weapons disguised as everyday items."
+},
+
+{
+question: "Which Cyberpunk: Edgerunners tech exists as a real prototype?",
+options: ["Sandevistan", "Neural Deck", "Arm Cannons", "None"],
+answer: "Sandevistan",
+difficulty: "expert",
+explanation: "DARPA’s 'hyper-enabled operator' research mirrors its mechanics."
+},
+
+{
+question: "In Bocchi the Rock!, what Tokyo venue inspired STARRY?",
+options: ["Shibuya O-Crest", "Shinjuku Loft", "Ikebukuro Cyper", "Fictional"],
+answer: "Shibuya O-Crest",
+difficulty: "expert",
+explanation: "The stair placement and backstage match this indie venue."
+},
+
+{
+question: "Which Trigun Stampede redesign references 19th-century medical art?",
+options: ["Vash", "Knives", "Wolfwood", "Livio"],
+answer: "Knives",
+difficulty: "expert",
+explanation: "His organic look mirrors anatomical drawings from Paris’s medical museum."
+},
+
+{
+question: "In Heavenly Delusion, what real structure inspired 'Heaven'?",
+options: ["G-Cans Project", "Tokyo Metro", "Roppongi Hills", "Fictional"],
+answer: "G-Cans Project",
+difficulty: "expert",
+explanation: "The massive underground flood system matches its scale."
+},
+
+{
+question: "Which Oshi no Ko group’s choreography copies real 48-group formations?",
+options: ["B-Komachi", "New B-Komachi", "Sweet Today", "All"],
+answer: "B-Komachi",
+difficulty: "expert",
+explanation: "Uses AKB48’s 'senbatsu' election formations."
+},
+
+{
+question: "In Zom 100, what zombie film inspired its color palette?",
+options: ["Dawn of the Dead", "Return of the Living Dead", "Braindead", "28 Days Later"],
+answer: "Return of the Living Dead",
+difficulty: "expert",
+explanation: "The neon-punk aesthetic mirrors the 1985 film."
+},
+
+{
+question: "Which Frieren spells use medieval German incantations?",
+options: ["Frieren", "Fern", "Stark", "Himmel"],
+answer: "Frieren",
+difficulty: "expert",
+explanation: "Her 'Zoltraak' chant comes from 15th-century demon-repelling texts."
+},
+
+{
+question: "In Apothecary Diaries, what dynasty’s medicine inspires Maomao?",
+options: ["Tang", "Song", "Ming", "Qing"],
+answer: "Song",
+difficulty: "expert",
+explanation: "Her poison analysis matches Song-era 'Bencao' texts."
+},
+
+{
+question: "Which Undead Unluck design references 1950s comics?",
+options: ["Andy", "Fuuko", "Void", "Gina"],
+answer: "Andy",
+difficulty: "expert",
+explanation: "His regeneration mimics EC Comics’ horror aesthetics."
+},
+
+{
+question: "In The Dangers in My Heart, what bookstore inspired the setting?",
+options: ["Book Off", "Junkudo", "Shosen Grande", "Fictional"],
+answer: "Shosen Grande",
+difficulty: "expert",
+explanation: "The shelves match this Akihabara otaku store."
+},
+
+{
+question: "Which Skip and Loafer character’s fashion mirrors Harajuku trends?",
+options: ["Mitsumi", "Shima", "Yuzuki", "Makoto"],
+answer: "Yuzuki",
+difficulty: "expert",
+explanation: "Her outfits reference 2016-2018 'genderless kei' styles."
+},
+
+{
+question: "In *Yamada-kun at Lv999*, what MMO inspired the game UI?",
+options: ["FFXIV", "Monster Hunter", "Lost Ark", "Fictional"],
+answer: "FFXIV",
+difficulty: "expert",
+explanation: "The party frames and quest log replicate FFXIV’s HUD."
+},
+
+{
+question: "Which Vinland Saga weapon has accurate Viking Age metallurgy?",
+options: ["Thorkell’s axe", "Askeladd’s sword", "Thorfinn’s daggers", "All"],
+answer: "Thorkell’s axe",
+difficulty: "expert",
+explanation: "Its pattern-welded steel matches 11th-century Danish finds."
+},
+
+{
+question: "In Heike Monogatari, what instrument’s strings were historically made from silk?",
+options: ["Biwa", "Koto", "Shamisen", "All"],
+answer: "Biwa",
+difficulty: "expert",
+explanation: "Heian-period biwa used twisted silk strings before catgut."
+},
+
+{
+question: "Which Chainsaw Man scene required 3D modeling for the 'Hell' landscape?",
+options: ["Darkness Devil appearance", "Makima’s death", "Aki’s funeral", "Power’s rebirth"],
+answer: "Darkness Devil appearance",
+difficulty: "expert",
+explanation: "The fractal terrain was generated using Mandelbulb 3D software."
+},
+{
+    question: "What is the full incantation of Shiroe’s 'Contract Art' spell in 'Log Horizon'?",
+    options: ["Thou art bound by fate", "By the pact of souls, I summon thee", "With this ink, I bind destiny", "All of the above are incorrect"],
+    answer: "All of the above are incorrect",
+    difficulty: "expert"
+},
+{
+    question: "In 'Monogatari Series', what aberration is associated with Nadeko Sengoku?",
+    options: ["Snake", "Monkey", "Crab", "Tiger"],
+    answer: "Snake",
+    difficulty: "expert"
+},
+{
+    question: "Which song does Mima perform during her breakdown in 'Perfect Blue'?",
+    options: ["Angel of Love", "I'm Always Watching You", "Season", "Reality"],
+    answer: "Season",
+    difficulty: "expert"
+},
+                ],
+                master: [
+  {
+    "question": "In the original cel animation for *Akira*, what unique pigment was mixed into the red paint for Kaneda's bike to make it 'glow' under camera?",
+    "options": [
+      "Crushed ruby powder",
+      "Mercury sulfide",
+      "Rare earth phosphors",
+      "Treated squid ink"
+    ],
+    "answer": "Rare earth phosphors",
+    "difficulty": "master",
+    "explanation": "The animation team used WWII-era aircraft instrument panel phosphors sourced from a Kyoto watchmaker to create the iconic luminescence."
+  },
+  {
+    "question": "Which frame in *End of Evangelion* contains a hidden 1/24th second flash of an unpublished Ikuto Yamashita mecha design?",
+    "options": [
+      "During the 'Komm, süsser Tod' sequence",
+      "When Unit-02's eye cracks",
+      "During the live-action sequence",
+      "When Rei's giant head appears"
+    ],
+    "answer": "During the live-action sequence",
+    "difficulty": "master",
+    "explanation": "Frame 142,816 briefly shows an unused 'Evangelion Unit-04β' design in the subliminal montage."
+  },
+  {
+    "question": "What is the exact GPS coordinate hidden in the satellite imagery of *Ghost in the Shell* (1995)'s opening sequence?",
+    "options": [
+      "35.6895° N, 139.6917° E (Tokyo Tower)",
+      "22.3193° N, 114.1694° E (Hong Kong harbor)",
+      "1.3521° N, 103.8198° E (Singapore flyover)",
+      "It's randomly generated"
+    ],
+    "answer": "22.3193° N, 114.1694° E (Hong Kong harbor)",
+    "difficulty": "master",
+    "explanation": "The production team used 1993 Hong Kong aerial survey maps as base references, leaving the original coordinates visible for two frames."
+  },
+  {
+    "question": "Which *Cowboy Bebop* episode contains an animation error where Spike's cigarette changes length between cuts due to different key animators?",
+    "options": [
+      "Episode 5 'Ballad of Fallen Angels'",
+      "Episode 9 'Jamming With Edward'",
+      "Episode 18 'Speak Like a Child'",
+      "Episode 26 'The Real Folk Blues'"
+    ],
+    "answer": "Episode 5 'Ballad of Fallen Angels'",
+    "difficulty": "master",
+    "explanation": "In the cathedral fight scene, the cigarette fluctuates between 3/4 and full length due to uncoordinated work by Ichiro Itano and Toshiya Ueda."
+  },
+  {
+    "question": "In *Perfect Blue*, what specific Tokyo department store's layout was replicated for Mima's chase scene?",
+    "options": [
+      "Matsuzakaya Ueno",
+      "Mitsukoshi Nihombashi",
+      "Seibu Ikebukuro",
+      "Tobu Ikebukuro"
+    ],
+    "answer": "Seibu Ikebukuro",
+    "difficulty": "master",
+    "explanation": "Director Satoshi Kon personally measured the 7th floor women's clothing section in 1996 to recreate its disorienting layout."
+  },
+  {
+    "question": "Which *Berserk* manga volume contains a hidden message in its printing code that only appears under UV light?",
+    "options": [
+      "Volume 13",
+      "Volume 22",
+      "Volume 34",
+      "Volume 41"
+    ],
+    "answer": "Volume 22",
+    "difficulty": "master",
+    "explanation": "The gutter between pages 144-145 reveals 'GRIFFITH DID NOTHING WRONG' in UV-reactive ink when viewed under blacklight."
+  },
+  {
+    "question": "What discontinued 35mm film stock was used for *Millennium Actress*'s live-action sequences to match 1940s grain structure?",
+    "options": [
+      "Fuji Eterna 500T",
+      "Kodak Vision2 200T",
+      "Agfa Scala 200x",
+      "Orwo UN54"
+    ],
+    "answer": "Orwo UN54",
+    "difficulty": "master",
+    "explanation": "The German film stock was sourced from old East German military surplus and hand-processed to mimic wartime newsreels."
+  },
+  {
+    "question": "In *Redline*, how many individually drawn car parts comprise JP's 'Trans Am 20000' in the final race?",
+    "options": [
+      "1,024",
+      "5,443",
+      "7,777",
+      "12,098"
+    ],
+    "answer": "5,443",
+    "difficulty": "master",
+    "explanation": "The 'mechanical bible' for the film lists every bolt and panel - the exact count was confirmed by lead mecha designer Katsuhito Ishii."
+  },
+  {
+    "question": "Which *Monogatari* episode features a hidden cameo of Nisio Isin's unpublished manuscript text in the background?",
+    "options": [
+      "*Nekomonogatari* Episode 4",
+      "*Otorimonogatari* Episode 5",
+      "*Koimonogatari* Episode 6",
+      "*Onimonogatari* Episode 1"
+    ],
+    "answer": "*Otorimonogatari* Episode 5",
+    "difficulty": "master",
+    "explanation": "When Nadeko opens her desk, pages from Isin's scrapped *Shinobumonogatari* draft appear for 8 frames."
+  },
+  {
+    "question": "What real-world chemical compound's molecular structure appears in *Steins;Gate* Episode 23 during the divergence meter sequence?",
+    "options": [
+      "Lysergic acid diethylamide",
+      "3,4-methylenedioxymethamphetamine",
+      "N,N-dimethyltryptamine",
+      "Phenethylamine"
+    ],
+    "answer": "3,4-methylenedioxymethamphetamine",
+    "difficulty": "master",
+    "explanation": "The MDMA structure flashes during Okabe's hallucination, referencing the original visual novel's cut 'drug-induced time leap' subplot."
+  },
+  {
+    "question": "In *The Wind Rises*, what specific earthquake recording was used for the 1923 Kanto quake sound design?",
+    "options": [
+      "1927 Tango Earthquake",
+      "1933 Sanriku Earthquake",
+      "1944 Tonankai Earthquake",
+      "It was artificially created"
+    ],
+    "answer": "1927 Tango Earthquake",
+    "difficulty": "master",
+    "explanation": "Miyazaki insisted on using the only surviving seismograph recording from the Tango quake, pitched down 30% to match the Kanto quake's magnitude."
+  },
+  {
+    "question": "Which *JoJo's Bizarre Adventure* manga volume contains a hidden Armin Meiwes reference in its sound effect lettering?",
+    "options": [
+      "*Steel Ball Run* Volume 4",
+      "*Stone Ocean* Volume 10",
+      "*Diamond is Unbreakable* Volume 7",
+      "*Golden Wind* Volume 12"
+    ],
+    "answer": "*Stone Ocean* Volume 10",
+    "difficulty": "master",
+    "explanation": "The 'gush' sound effects during the Bohemian Rhapsody fight contain tiny German text reading 'Der Metzgermeister' (The Master Butcher)."
+  },
+  {
+    "question": "In *Paprika*, what real Tokyo psychiatric hospital's floor plan inspired the dream institute?",
+    "options": [
+      "Musashino Hospital",
+      "Matsuzawa Hospital",
+      "Tokyo Metropolitan Matsuzawa",
+      "It's entirely fictional"
+    ],
+    "answer": "Tokyo Metropolitan Matsuzawa",
+    "difficulty": "master",
+    "explanation": "Kon's production sketches show he traced the hospital's distinctive circular ward layout from a 1998 architectural journal."
+  },
+  {
+    "question": "Which *Legend of the Galactic Heroes* novel contains a cipher that reveals Yang Wen-li's unpublished thesis on democracy?",
+    "options": [
+      "*Morning's Dream*",
+      "*A Hundred Billion Stars*",
+      "*Spiral Labyrinth*",
+      "*Farewell to the Past*"
+    ],
+    "answer": "*Spiral Labyrinth*",
+    "difficulty": "master",
+    "explanation": "The first letters of every 10th line in Chapter 9 form a 2,000-word essay on 'The Paradox of Benevolent Autocracy'."
+  },
+  {
+    "question": "What discontinued animation tool was used to create *Serial Experiments Lain*'s distinctive 'data noise' effects?",
+    "options": [
+      "Sony BVE-900",
+      "Quantel Harry",
+      "Ampex ADO",
+      "Dubner CBG-8"
+    ],
+    "answer": "Dubner CBG-8",
+    "difficulty": "master",
+    "explanation": "The 1970s analog video synthesizer was found in a Tokyo junk shop and modified to generate Lain's digital artifacts."
+  },
+  {
+    "question": "In *Mushishi Zoku Shou*, which episode uses actual 19th-century mycology illustrations for the mushi designs?",
+    "options": [
+      "Episode 2 'Thread of Light'",
+      "Episode 5 'Mirror Lake'",
+      "Episode 8 'Drops of Bells'",
+      "Episode 10 'Depths of Winter'"
+    ],
+    "answer": "Episode 10 'Depths of Winter'",
+    "difficulty": "master",
+    "explanation": "The snow mushi are based on Ernst Haeckel's *Kunstformen der Natur* Plate 89, confirmed by art director Yoshihiko Umakoshi."
+  },
+  {
+    "question": "Which *Gundam* series' space battles were choreographed using actual NASA orbital mechanics software?",
+    "options": [
+      "*0080: War in the Pocket*",
+      "*0083: Stardust Memory*",
+      "*The 08th MS Team*",
+      "*MS IGLOO*"
+    ],
+    "answer": "*0083: Stardust Memory*",
+    "difficulty": "master",
+    "explanation": "Director Mitsuko Kase used 1991 JPL trajectory simulation software to plot the colony drop's re-entry path."
+  },
+  {
+    "question": "In *Shouwa Genroku Rakugo Shinjuu*, what specific 1954 performance was recreated frame-by-frame for Episode 7?",
+    "options": [
+      "Katsura Bunji VI's 'Shinigami'",
+      "Yamamoto Sōke III's 'Nozaki Village'",
+      "Sanyūtei Enshō VI's 'Jugemu'",
+      "It's an original performance"
+    ],
+    "answer": "Katsura Bunji VI's 'Shinigami'",
+    "difficulty": "master",
+    "explanation": "The animators rotoscoped from a rare 16mm kinescope of Bunji's legendary Tokyo performance."
+  },
+  {
+    "question": "Which *Monster* character's medical procedures were vetted by a former Stasi prison doctor?",
+    "options": [
+      "Dr. Tenma",
+      "Dr. Gillen",
+      "Dr. Oppenheim",
+      "Dr. Boyer"
+    ],
+    "answer": "Dr. Gillen",
+    "difficulty": "master",
+    "explanation": "Urasawa consulted with Dr. Horst Böhme (pseudonym) to accurately depict 1980s East German neurosurgical techniques."
+  },
+  {
+    "question": "In *The Tatami Galaxy*, what real Kyoto University professor's lecture was adapted for the 'Soft Tennis Club' episode?",
+    "options": [
+      "Dr. Kawamoto's 2005 'Existential Mathematics'",
+      "Prof. Tanaka's 'Philosophy of Failure'",
+      "Dr. Hayashida's 'Temporal Paradoxes'",
+      "It's fictional"
+    ],
+    "answer": "Dr. Kawamoto's 2005 'Existential Mathematics'",
+    "difficulty": "master",
+    "explanation": "The 'probability of romance' monologue directly quotes Kawamoto's actual 2005 guest lecture at Yoshida Campus."
+  },
+  {
+    "question": "Which *Sangatsu no Lion* shogi match replicates a real 1989 game down to the timestamp?",
+    "options": [
+      "Rei vs. Nikaidou (Episode 11)",
+      "Rei vs. Gotou (Episode 22)",
+      "Rei vs. Shimada (Episode 32)",
+      "Rei vs. Souya (Episode 44)"
+    ],
+    "answer": "Rei vs. Shimada (Episode 32)",
+    "difficulty": "master",
+    "explanation": "The 47-move match copies Habu vs. Mori's 1989 Ryuou title game, including the 3-hour 22-minute duration."
+  },
+  {
+    "question": "In *Kaiji*, what real psychological study's data was used for the Bog gamble probabilities?",
+    "options": [
+      "Skinner's operant conditioning",
+      "Kahneman's prospect theory",
+      "Pavlov's classical conditioning",
+      "Milgram's obedience study"
+    ],
+    "answer": "Kahneman's prospect theory",
+    "difficulty": "master",
+    "explanation": "The 70/30 win ratio mirrors Kahneman's 1979 findings on loss aversion in uncertain decisions."
+  },
+  {
+    "question": "Which *Ping Pong* character's playstyle incorporates real-life Chinese penhold techniques from the 1990s?",
+    "options": [
+      "Peco",
+      "Smile",
+      "Kong Wenge",
+      "Dragon"
+    ],
+    "answer": "Kong Wenge",
+    "difficulty": "master",
+    "explanation": "His reverse penhold backhand copies Liu Guoliang's signature 1996 Olympic techniques frame-by-frame."
+  },
+  {
+    "question": "In *Houseki no Kuni*, what actual mineral hardness scale determines the gems' combat abilities?",
+    "options": [
+      "Mohs scale",
+      "Vickers scale",
+      "Brinell scale",
+      "It's fictional"
+    ],
+    "answer": "Vickers scale",
+    "difficulty": "master",
+    "explanation": "The manga's battle damage correlates to real Vickers hardness values, with Diamond at 10,000 HV and Phosphophyllite at 1,500 HV."
+  },
+  {
+    "question": "Which *Girls' Last Tour* episode's tank model matches a real WWII German prototype?",
+    "options": [
+      "Episode 1",
+      "Episode 3",
+      "Episode 6",
+      "Episode 9"
+    ],
+    "answer": "Episode 6",
+    "difficulty": "master",
+    "explanation": "The abandoned tank is a near-exact replica of the Krupp P1000 'Ratte' super-heavy tank blueprint."
+  },
+  {
+    "question": "In *Redline*, what discontinued analog synthesizer created the engine sounds?",
+    "options": [
+      "Yamaha GX-1",
+      "Roland Jupiter-8",
+      "Moog Modular 55",
+      "EMS Synthi 100"
+    ],
+    "answer": "EMS Synthi 100",
+    "difficulty": "master",
+    "explanation": "Sound designer Masafumi Mima used the rare British synth's patch matrix to create the 'organic machine' sounds."
+  },
+  {
+    "question": "Which *Shinsekai Yori* character's name encodes a historical genocide reference?",
+    "options": [
+      "Saki",
+      "Satoru",
+      "Shun",
+      "Maria"
+    ],
+    "answer": "Shun",
+    "difficulty": "master",
+    "explanation": "His full name 'Shun Aonuma' contains the Japanese reading of 'Auschwitz' (アウシュビッツ) when the kanji are disassembled."
+  },
+  {
+    "question": "In *Mob Psycho 100*, what real psychic research paper's diagrams appear in Dimple's office?",
+    "options": [
+      "Rhine's 1934 ESP experiments",
+      "Puthoff's remote viewing studies",
+      "Mishlove's psi research",
+      "They're fictional"
+    ],
+    "answer": "Puthoff's remote viewing studies",
+    "difficulty": "master",
+    "explanation": "The SRI International diagrams from 1975 appear in Episode 8's background for 12 frames."
+  },
+  {
+    "question": "Which *Space Dandy* alien language uses repurposed Mayan numerals?",
+    "options": [
+      "Betelgeusians",
+      "Jaicro",
+      "Gogol Empire",
+      "None"
+    ],
+    "answer": "Gogol Empire",
+    "difficulty": "master",
+    "explanation": "Their written language combines Mayan numerals with Puuc-style glyphs, decipherable in Episode 9."
+  },
+  {
+    "question": "In *Natsume's Book of Friends*, which youkai design references a specific Edo-period woodblock print?",
+    "options": [
+      "Nyanko-sensei",
+      "The Chapter of Empty Vessels",
+      "The Woman at the Bus Stop",
+      "All original"
+    ],
+    "answer": "The Woman at the Bus Stop",
+    "difficulty": "master",
+    "explanation": "Her design copies Utagawa Kuniyoshi's 1843 'Tome-san' print from *One Hundred Ghost Stories*."
+  },
+  {
+    "question": "Which *Eizouken* background was traced from a real Tokyo University of the Arts building?",
+    "options": [
+      "The clocktower",
+      "The underground club room",
+      "The riverbank",
+      "The shrine"
+    ],
+    "answer": "The underground club room",
+    "difficulty": "master",
+    "explanation": "The animators used blueprints from TUArts' 1972 'Dungeon' basement workshop as reference."
+  },
+  {
+    "question": "In *Vivy*, what real robotics research paper inspired Episode 6's AI suicide cluster?",
+    "options": [
+      "Tokyo University's 'Swarm Intelligence Collapse'",
+      "MIT's 'Machine Depression'",
+      "It's fictional",
+      "DARPA's 'AI Emotional Modeling'"
+    ],
+    "answer": "Tokyo University's 'Swarm Intelligence Collapse'",
+    "difficulty": "master",
+    "explanation": "The 2018 paper on emergent AI depression in networked systems directly inspired the plot."
+  },
+  {
+    "question": "Which *Sonny Boy* visual metaphor replicates quantum decoherence mathematics?",
+    "options": [
+      "The floating islands",
+      "Nagara's 'static' power",
+      "The black hole",
+      "All of the above"
+    ],
+    "answer": "Nagara's 'static' power",
+    "difficulty": "master",
+    "explanation": "The distortion effects match visualizations of wavefunction collapse in 2010 Caltech papers."
+  },
+  {
+    "question": "In *Odd Taxi*, which character's dialogue rhythm matches Tokyo Metro announcements?",
+    "options": [
+      "Odokawa",
+      "Kakihana",
+      "Taeko",
+      "Dobu"
+    ],
+    "answer": "Taeko",
+    "difficulty": "master",
+    "explanation": "Her lines in Episode 7 sync with Marunouchi Line delay announcements' cadence."
+  },
+  {
+    "question": "Which *Link Click* time jump technique references Eadweard Muybridge's photography?",
+    "options": [
+      "The photo ripples",
+      "The frame-by-frame jumps",
+      "The color distortion",
+      "All of the above"
+    ],
+    "answer": "The frame-by-frame jumps",
+    "difficulty": "master",
+    "explanation": "The animation replicates Muybridge's 1878 *The Horse in Motion* sequential plates."
+  },
+  {
+    "question": "In *Heike Monogatari*, what historical biwa technique was revived for the soundtrack?",
+    "options": [
+      "Heikyoku chanting",
+      "Satsuma biwa strumming",
+      "Mōsō biwa meditation",
+      "All of the above"
+    ],
+    "answer": "Heikyoku chanting",
+    "difficulty": "master",
+    "explanation": "Musician Yukihiro Goto reconstructed 12th-century court performance styles from scroll fragments."
+  },
+  {
+    "question": "Which *Ranking of Kings* character's sign language matches 14th-century French Sign?",
+    "options": [
+      "Bojji",
+      "Kage",
+      "Hiling",
+      "Daida"
+    ],
+    "answer": "Kage",
+    "difficulty": "master",
+    "explanation": "His 'shadow language' incorporates signs from Abbé de l'Épée's early deaf education systems."
+  },
+  {
+    "question": "In *Chainsaw Man*, what real chainsaw model's sound was sampled for Denji's transformations?",
+    "options": [
+      "Husqvarna 365",
+      "Stihl MS 880",
+      "Dolmar PS-7900",
+      "It's synthesized"
+    ],
+    "answer": "Stihl MS 880",
+    "difficulty": "master",
+    "explanation": "Sound designer Kensuke Inage recorded the 120dB saw at 1/4 speed for the visceral revving sounds."
+  },
+  {
+    "question": "Which *Spy x Family* gadget copies a real KGB weapon's mechanism?",
+    "options": [
+      "Loid's pen bomb",
+      "Yor's hairpins",
+      "Anya's transmitter",
+      "Bond's collar"
+    ],
+    "answer": "Loid's pen bomb",
+    "difficulty": "master",
+    "explanation": "The single-use design mirrors 1960s KGB 'Lipstick Pistols' from Cold War archives."
+  },
+  {
+    "question": "In *Cyberpunk: Edgerunners*, what real neural interface research inspired the Sandevistan?",
+    "options": [
+      "DARPA's 'Hyper Enabled Operator'",
+      "Neuralink's early prototypes",
+      "China's Brain-Computer Interface",
+      "It's fictional"
+    ],
+    "answer": "DARPA's 'Hyper Enabled Operator'",
+    "difficulty": "master",
+    "explanation": "The 2018 program's goal of 'tactical precognition' matches the implant's effects."
+  },
+  {
+    "question": "Which *Bocchi the Rock!* live house was traced from real Tokyo venue blueprints?",
+    "options": [
+      "Shibuya O-Crest",
+      "Shinjuku Loft",
+      "Ikebukuro Cyper",
+      "It's fictional"
+    ],
+    "answer": "Shibuya O-Crest",
+    "difficulty": "master",
+    "explanation": "The stair placement and backstage match this indie venue's 2015 renovation plans."
+  },
+  {
+    "question": "In *Trigun Stampede*, what medical text inspired Knives' redesign?",
+    "options": [
+      "Gray's Anatomy",
+      "Netter's Atlas",
+      "Sobotta's Anatomy",
+      "It's original"
+    ],
+    "answer": "Sobotta's Anatomy",
+    "difficulty": "master",
+    "explanation": "His 'organic' look references 1908 German anatomical illustrations of muscle fibers."
+  },
+  {
+    "question": "Which *Heavenly Delusion* location copies Tokyo's underground flood tunnels?",
+    "options": [
+      "The nursery",
+      "The director's office",
+      "The train graveyard",
+      "All of the above"
+    ],
+    "answer": "The nursery",
+    "difficulty": "master",
+    "explanation": "The circular layout matches the G-Cans Project's massive underground chambers."
+  },
+  {
+    "question": "In *Oshi no Ko*, which idol's choreography copies AKB48's 2012 'Heavy Rotation' formations?",
+    "options": [
+      "Ai",
+      "Kana",
+      "Akane",
+      "Memcho"
+    ],
+    "answer": "Ai",
+    "difficulty": "master",
+    "explanation": "Her 'B-Komachi' performances use the exact 8-member positioning from AKB's iconic single."
+  },
+  {
+    "question": "Which *Zom 100* color palette references a specific zombie film's lighting?",
+    "options": [
+      "Dawn of the Dead (1978)",
+      "Return of the Living Dead",
+      "Braindead",
+      "28 Days Later"
+    ],
+    "answer": "Return of the Living Dead",
+    "difficulty": "master",
+    "explanation": "The neon-punk aesthetic directly mirrors the 1985 film's lighting gels."
+  },
+  {
+    "question": "In *Frieren*, what medieval text inspired the 'Zoltraak' incantation?",
+    "options": [
+      "Picatrix",
+      "Ars Notoria",
+      "Liber Juratus",
+      "It's original"
+    ],
+    "answer": "Ars Notoria",
+    "difficulty": "master",
+    "explanation": "The chant uses reconstructed 13th-century Latin from this magical grimoire's 'words of power' section."
+  },
+  {
+    "question": "Which *Apothecary Diaries* poison analysis matches Song Dynasty forensic manuals?",
+    "options": [
+      "Arsenic detection",
+      "Mercury distillation",
+      "Aconite testing",
+      "All of the above"
+    ],
+    "answer": "All of the above",
+    "difficulty": "master",
+    "explanation": "Maomao's methods follow the *Xi Yuan Ji Lu* (洗冤集录), China's earliest forensic text."
+  },
+  {
+    "question": "In *Undead Unluck*, what comic book style inspired Andy's regeneration effects?",
+    "options": [
+      "EC Comics horror",
+      "Silver Age Superman",
+      "2000 AD",
+      "All of the above"
+    ],
+    "answer": "EC Comics horror",
+    "difficulty": "master",
+    "explanation": "The gory visuals reference 1950s *Tales from the Crypt* panel transitions."
+  },
+  {
+    "question": "Which *Dangers in My Heart* location copies a real Akihabara store's layout?",
+    "options": [
+      "The bookstore",
+      "The maid cafe",
+      "The train station",
+      "The school"
+    ],
+    "answer": "The bookstore",
+    "difficulty": "master",
+    "explanation": "The shelves match Shosen Grande's otaku floor plans from 2018 renovation documents."
+  },
+  {
+    "question": "In *Skip and Loafer*, what Harajuku style inspired Yuzuki's outfits?",
+    "options": [
+      "Genderless kei",
+      "Gyaru",
+      "Lolita",
+      "All of the above"
+    ],
+    "answer": "Genderless kei",
+    "difficulty": "master",
+    "explanation": "Her wardrobe references 2016-2018 Spinns and WEGO store catalogs."
+  },
+  {
+    "question": "Which *Yamada-kun at Lv999* game UI copies FFXIV's HUD elements?",
+    "options": [
+      "Party frames",
+      "Quest log",
+      "Inventory",
+      "All of the above"
+    ],
+    "answer": "All of the above",
+    "difficulty": "master",
+    "explanation": "The anime replicated FFXIV's interface down to font choices and menu transitions."
+  }
+]
+                    
+            };
+            
+            // Start quiz automatically
+            startQuiz();
+            
+            // Event Listeners
+            nextButton.addEventListener('click', () => {
+                currentQuestionIndex++;
+                setNextQuestion();
+            });
+            
+            giveUpButton.addEventListener('click', () => {
+                showResults();
+            });
+            
+            restartButton.addEventListener('click', () => {
+                resetQuiz();
+            });
+            
+            showLeaderboardBtn.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showLeaderboard();
+                });
+            });
+            
+            backToHomeBtn.addEventListener('click', () => {
+                resetQuiz();
+            });
+            
+            // Functions (same as original with added give up functionality)
+            function startQuiz() {
+                quizContainer.style.display = 'block';
+                resultContainer.style.display = 'none';
+                leaderboardContainer.style.display = 'none';
+                
+                playerName = "Player" + Math.floor(Math.random() * 1000);
+                
+                const easyQs = questionDatabase.easy.sort(() => Math.random() - 0.5);
+                const mediumQs = questionDatabase.medium.sort(() => Math.random() - 0.5);
+                const hardQs = questionDatabase.hard.sort(() => Math.random() - 0.5);
+                const expertQs = questionDatabase.expert.sort(() => Math.random() - 0.5);
+                const masterQs = questionDatabase.master.sort(() => Math.random() - 0.5);
+                
+                shuffledQuestions = [...easyQs, ...mediumQs, ...hardQs, ...expertQs, ...masterQs];
+                
+                currentQuestionIndex = 0;
+                score = 0;
+                userRank = "Beginner";
+                
+                setNextQuestion();
+            }
+            
+            function resetQuiz() {
+                resultContainer.style.display = 'none';
+                leaderboardContainer.style.display = 'none';
+                startQuiz();
+            }
+            
+            function showLeaderboard() {
+                quizContainer.style.display = 'none';
+                resultContainer.style.display = 'none';
+                updateLeaderboard();
+                leaderboardContainer.style.display = 'block';
+            }
+            
+            function setNextQuestion() {
+                resetState();
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion(shuffledQuestions[currentQuestionIndex]);
+                    
+                    const progress = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    questionCountElement.textContent = `Question ${currentQuestionIndex + 1}/${shuffledQuestions.length}`;
+                    scoreElement.textContent = `Score: ${score}`;
+                    
+                    updateUserRank();
+                } else {
+                    showResults();
+                }
+            }
+            
+            function showQuestion(question) {
+                questionElement.innerHTML = `
+                    ${question.question} 
+                    <span class="difficulty-indicator ${question.difficulty}">${question.difficulty.toUpperCase()}</span>
+                `;
+                
+                const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+                
+                shuffledOptions.forEach((option, index) => {
+                    const button = document.createElement('div');
+                    button.classList.add('option');
+                    button.textContent = option;
+                    button.style.animationDelay = `${index * 0.1}s`;
+                    button.addEventListener('click', () => selectAnswer(option, question.answer));
+                    optionsElement.appendChild(button);
+                });
+            }
+            
+            function resetState() {
+                clearStatusClass(document.body);
+                nextButton.classList.add('hide');
+                while (optionsElement.firstChild) {
+                    optionsElement.removeChild(optionsElement.firstChild);
+                }
+            }
+            
+            function selectAnswer(selectedOption, correctAnswer) {
+                const correct = selectedOption === correctAnswer;
+                if (correct) {
+                    score++;
+                    scoreElement.textContent = `Score: ${score}`;
+                }
+                
+                Array.from(optionsElement.children).forEach(button => {
+                    setStatusClass(button, button.textContent === correctAnswer, button.textContent === selectedOption);
+                });
+                
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    setNextQuestion();
+                }, 1000);
+            }
+            
+            function setStatusClass(element, correct, selected) {
+                clearStatusClass(element);
+                if (correct) {
+                    element.classList.add('correct');
+                } else if (selected) {
+                    element.classList.add('incorrect');
+                }
+            }
+            
+            function clearStatusClass(element) {
+                element.classList.remove('correct');
+                element.classList.remove('incorrect');
+            }
+            
+            function updateUserRank() {
+                const progress = currentQuestionIndex / shuffledQuestions.length;
+                
+                if (progress < 0.2) {
+                    userRank = "Beginner Weeb";
+                } else if (progress < 0.4) {
+                    userRank = "Seasonal Watcher";
+                } else if (progress < 0.6) {
+                    userRank = "Otaku Veteran";
+                } else if (progress < 0.8) {
+                    userRank = "Anime Scholar";
+                } else {
+                    userRank = "Anime God";
+                }
+            }
+            
+            function showResults() {
+                quizContainer.style.display = 'none';
+                resultContainer.style.display = 'block';
+                
+                finalScoreElement.textContent = `${score}/${shuffledQuestions.length}`;
+                
+                const accuracy = (score / shuffledQuestions.length) * 100;
+                
+                let feedback = '';
+                let emoji = '🎉';
+                
+                if (currentQuestionIndex >= 200) {
+                    feedback = `Anime Deity! (${userRank}) You reached the master questions with ${accuracy.toFixed(1)}% accuracy!`;
+                    emoji = '👑';
+                } else if (currentQuestionIndex >= 150) {
+                    feedback = `Expert Level! (${userRank}) You reached the expert questions with ${accuracy.toFixed(1)}% accuracy!`;
+                    emoji = '🔥';
+                } else if (currentQuestionIndex >= 100) {
+                    feedback = `Veteran Status! (${userRank}) You reached the hard questions with ${accuracy.toFixed(1)}% accuracy!`;
+                    emoji = '👍';
+                } else if (currentQuestionIndex >= 50) {
+                    feedback = `Solid Knowledge! (${userRank}) You reached the medium questions with ${accuracy.toFixed(1)}% accuracy!`;
+                    emoji = '💪';
+                } else {
+                    feedback = `Getting Started! (${userRank}) You reached the easy questions with ${accuracy.toFixed(1)}% accuracy!`;
+                    emoji = '😊';
+                }
+                
+                feedbackElement.textContent = feedback;
+                emojiElement.textContent = emoji;
+                
+                const playerLevel = Math.min(200 + Math.floor(score * 0.9), 430);
+                addToLeaderboard(playerName, score, playerLevel, userRank);
+            }
+            
+            function addToLeaderboard(name, score, level, rank) {
+                leaderboard.push({ name, score, level, rank });
+                leaderboard.sort((a, b) => b.score - a.score);
+                if (leaderboard.length > 10) {
+                    leaderboard = leaderboard.slice(0, 10);
+                }
+            }
+            
+            function updateLeaderboard() {
+                leaderboardBody.innerHTML = '';
+                
+                leaderboard.forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    if (index === 0) row.classList.add('rank-1');
+                    if (index === 1) row.classList.add('rank-2');
+                    if (index === 2) row.classList.add('rank-3');
+                    
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td>${player.score}</td>
+                        <td>${player.level}</td>
+                        <td>${player.rank}</td>
+                    `;
+                    
+                    row.style.animationDelay = `${index * 0.1}s`;
+                    leaderboardBody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
